@@ -1,0 +1,2222 @@
+{
+	"info": {
+		"_postman_id": "6d1c3be0-b2c6-4d4d-80c2-d9bda5935dd0",
+		"name": "BIZDOCS - API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "46974017",
+		"_collection_link": "https://bizdocs.postman.co/workspace/1933b99b-6ee6-4abf-8124-a6ac7f1f4fb9/collection/46974017-6d1c3be0-b2c6-4d4d-80c2-d9bda5935dd0?action=share&source=collection_link&creator=46974017"
+	},
+	"item": [
+		{
+			"name": "Documents",
+			"item": [
+				{
+					"name": "ExtractedMetadata",
+					"item": [
+						{
+							"name": "Bulk get document extracted metadata",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"requests\": [\n    \"1a889b0b-6f65-4277-9d65-5f6047ef87f9\"\n  ]\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{api-bzd}}/Company/{{api-bzd-companyvatid}}/Documents/ExtractedMetadata",
+									"host": [
+										"{{api-bzd}}"
+									],
+									"path": [
+										"Company",
+										"{{api-bzd-companyvatid}}",
+										"Documents",
+										"ExtractedMetadata"
+									]
+								},
+								"description": "Retrieves extracted metadata for multiple documents by their IDs."
+							},
+							"response": [
+								{
+									"name": "Returns extracted metadata for the specified documents.",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											},
+											{
+												"key": "Authorization",
+												"value": "Bearer <token>",
+												"description": "Added as a part of security scheme: bearer"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"documentIds\": [\n    \"ecc6bb41-2480-c060-81f3-bddb4218c1db\",\n    \"1d1d6415-9357-d59f-b5c9-5a10792b49a9\"\n  ]\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/Company/:vatId/Documents/ExtractedMetadata",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"Company",
+												":vatId",
+												"Documents",
+												"ExtractedMetadata"
+											],
+											"variable": [
+												{
+													"key": "vatId"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"items\": [\n    {\n      \"documentId\": \"a710eb99-7361-dda7-885c-43dce4056ef6\",\n      \"documentType\": \"string\",\n      \"costCenter\": \"string\",\n      \"fields\": [\n        {\n          \"name\": \"string\",\n          \"type\": \"string\",\n          \"value\": \"string\"\n        },\n        {\n          \"name\": \"string\",\n          \"type\": \"string\",\n          \"value\": \"string\"\n        }\n      ]\n    },\n    {\n      \"documentId\": \"991de738-309d-a2aa-9306-7ab7c55a5a3f\",\n      \"documentType\": \"string\",\n      \"costCenter\": \"string\",\n      \"fields\": [\n        {\n          \"name\": \"string\",\n          \"type\": \"string\",\n          \"value\": \"string\"\n        },\n        {\n          \"name\": \"string\",\n          \"type\": \"string\",\n          \"value\": \"string\"\n        }\n      ]\n    }\n  ]\n}"
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "InAccounting",
+					"item": [
+						{
+							"name": "Search accounting documents",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"documentStatus\": [\n    \"accountvalidation\", \"manualentry\"\n    // \"automaticentry\"\n  ]\n  //,\n  //\"journalGroupName\": \"\"\n  //\"startAccountancyYearMonth\": \"string\",\n  //\"endAccountancyYearMonth\": \"string\",\n  //\"paginationKey\": \"6925|2025-10-13T14:21:46.9644166\"\n  //\"orderBy\": \"string\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{api-bzd}}/Company/{{api-bzd-companyvatid}}/Documents/InAccounting",
+									"host": [
+										"{{api-bzd}}"
+									],
+									"path": [
+										"Company",
+										"{{api-bzd-companyvatid}}",
+										"Documents",
+										"InAccounting"
+									]
+								},
+								"description": "Search for accounting documents by status."
+							},
+							"response": [
+								{
+									"name": "Returns a list of accounting documents.",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											},
+											{
+												"key": "Authorization",
+												"value": "Bearer <token>",
+												"description": "Added as a part of security scheme: bearer"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"documentStatus\": [\n    \"string\",\n    \"string\"\n  ],\n  \"journalGroupName\": \"string\",\n  \"startAccountancyYearMonth\": \"string\",\n  \"endAccountancyYearMonth\": \"string\",\n  \"paginationKey\": \"string\",\n  \"orderBy\": \"string\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/Company/:vatId/Documents/InAccounting",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"Company",
+												":vatId",
+												"Documents",
+												"InAccounting"
+											],
+											"variable": [
+												{
+													"key": "vatId"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"items\": [\n    {\n      \"journalGroupName\": \"string\",\n      \"accountancyYear\": 2951,\n      \"accountancyMonth\": 4214,\n      \"documentDate\": \"string\",\n      \"documentNumber\": \"string\",\n      \"documentVendorVatId\": \"string\",\n      \"documentCustomerVatId\": \"string\",\n      \"documentTotalAmount\": 2035.4191823507263,\n      \"createdOn\": \"1979-09-12T16:58:21.900Z\",\n      \"documentId\": \"6d281687-4916-331b-e7d9-d8c80ee7a226\",\n      \"documentCreatedOn\": \"1977-02-28T22:56:27.825Z\",\n      \"documentName\": \"string\"\n    },\n    {\n      \"journalGroupName\": \"string\",\n      \"accountancyYear\": 577,\n      \"accountancyMonth\": 3160,\n      \"documentDate\": \"string\",\n      \"documentNumber\": \"string\",\n      \"documentVendorVatId\": \"string\",\n      \"documentCustomerVatId\": \"string\",\n      \"documentTotalAmount\": 6565.822699108173,\n      \"createdOn\": \"1993-09-10T17:10:52.646Z\",\n      \"documentId\": \"a9cf0e1f-1e51-275a-5060-80fc1e2fb5f6\",\n      \"documentCreatedOn\": \"1958-04-07T07:55:22.440Z\",\n      \"documentName\": \"string\"\n    }\n  ],\n  \"paginationKey\": \"string\"\n}"
+								},
+								{
+									"name": "Invalid request.",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											},
+											{
+												"key": "Authorization",
+												"value": "Bearer <token>",
+												"description": "Added as a part of security scheme: bearer"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"documentStatus\": [\n    \"string\",\n    \"string\"\n  ],\n  \"journalGroupName\": \"string\",\n  \"startAccountancyYearMonth\": \"string\",\n  \"endAccountancyYearMonth\": \"string\",\n  \"paginationKey\": \"string\",\n  \"orderBy\": \"string\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/Company/:vatId/Documents/InAccounting",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"Company",
+												":vatId",
+												"Documents",
+												"InAccounting"
+											],
+											"variable": [
+												{
+													"key": "vatId"
+												}
+											]
+										}
+									},
+									"status": "Bad Request",
+									"code": 400,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "string"
+								},
+								{
+									"name": "Unauthorized access.",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											},
+											{
+												"key": "Authorization",
+												"value": "Bearer <token>",
+												"description": "Added as a part of security scheme: bearer"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"documentStatus\": [\n    \"string\",\n    \"string\"\n  ],\n  \"journalGroupName\": \"string\",\n  \"startAccountancyYearMonth\": \"string\",\n  \"endAccountancyYearMonth\": \"string\",\n  \"paginationKey\": \"string\",\n  \"orderBy\": \"string\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/Company/:vatId/Documents/InAccounting",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"Company",
+												":vatId",
+												"Documents",
+												"InAccounting"
+											],
+											"variable": [
+												{
+													"key": "vatId"
+												}
+											]
+										}
+									},
+									"status": "Unauthorized",
+									"code": 401,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "string"
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Accounted",
+					"item": [
+						{
+							"name": "Search accounted documents",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"journalName\": \"string\",\n  \"startAccountancyYearMonth\": \"string\",\n  \"endAccountancyYearMonth\": \"string\",\n  \"paginationKey\": \"string\",\n  \"orderBy\": \"string\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{api-bzd}}/Company/{{api-bzd-companyvatid}}/Documents/Accounted",
+									"host": [
+										"{{api-bzd}}"
+									],
+									"path": [
+										"Company",
+										"{{api-bzd-companyvatid}}",
+										"Documents",
+										"Accounted"
+									]
+								},
+								"description": "Search for accounted documents by status."
+							},
+							"response": [
+								{
+									"name": "Returns a list of accounted documents.",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											},
+											{
+												"key": "Authorization",
+												"value": "Bearer <token>",
+												"description": "Added as a part of security scheme: bearer"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"journalName\": \"string\",\n  \"startAccountancyYearMonth\": \"string\",\n  \"endAccountancyYearMonth\": \"string\",\n  \"paginationKey\": \"string\",\n  \"orderBy\": \"string\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/Company/:vatId/Documents/Accounted",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"Company",
+												":vatId",
+												"Documents",
+												"Accounted"
+											],
+											"variable": [
+												{
+													"key": "vatId"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"items\": [\n    {\n      \"documentDate\": \"string\",\n      \"documentNumber\": \"string\",\n      \"documentVendorVatId\": \"string\",\n      \"documentCustomerVatId\": \"string\",\n      \"documentTotalAmount\": 7747.189688668794,\n      \"accountedTimeStamp\": \"string\",\n      \"accountedDate\": \"string\",\n      \"accountedNumber\": \"string\",\n      \"accountedJournalCode\": \"string\",\n      \"accountedJournalName\": \"string\",\n      \"createdOn\": \"2003-03-27T07:29:29.742Z\",\n      \"documentId\": \"03ea5caa-fd8a-82c8-a9fc-1447c2c61215\",\n      \"documentCreatedOn\": \"2006-03-30T14:47:20.746Z\",\n      \"documentName\": \"string\"\n    },\n    {\n      \"documentDate\": \"string\",\n      \"documentNumber\": \"string\",\n      \"documentVendorVatId\": \"string\",\n      \"documentCustomerVatId\": \"string\",\n      \"documentTotalAmount\": 3282.2502749509017,\n      \"accountedTimeStamp\": \"string\",\n      \"accountedDate\": \"string\",\n      \"accountedNumber\": \"string\",\n      \"accountedJournalCode\": \"string\",\n      \"accountedJournalName\": \"string\",\n      \"createdOn\": \"1967-10-05T00:03:49.156Z\",\n      \"documentId\": \"ad7ec989-8c92-2f99-9b45-3137d92d35dd\",\n      \"documentCreatedOn\": \"1950-10-04T04:13:22.633Z\",\n      \"documentName\": \"string\"\n    }\n  ],\n  \"paginationKey\": \"string\"\n}"
+								},
+								{
+									"name": "Invalid request.",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											},
+											{
+												"key": "Authorization",
+												"value": "Bearer <token>",
+												"description": "Added as a part of security scheme: bearer"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"journalName\": \"string\",\n  \"startAccountancyYearMonth\": \"string\",\n  \"endAccountancyYearMonth\": \"string\",\n  \"paginationKey\": \"string\",\n  \"orderBy\": \"string\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/Company/:vatId/Documents/Accounted",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"Company",
+												":vatId",
+												"Documents",
+												"Accounted"
+											],
+											"variable": [
+												{
+													"key": "vatId"
+												}
+											]
+										}
+									},
+									"status": "Bad Request",
+									"code": 400,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "string"
+								},
+								{
+									"name": "Unauthorized access.",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											},
+											{
+												"key": "Authorization",
+												"value": "Bearer <token>",
+												"description": "Added as a part of security scheme: bearer"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"journalName\": \"string\",\n  \"startAccountancyYearMonth\": \"string\",\n  \"endAccountancyYearMonth\": \"string\",\n  \"paginationKey\": \"string\",\n  \"orderBy\": \"string\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/Company/:vatId/Documents/Accounted",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"Company",
+												":vatId",
+												"Documents",
+												"Accounted"
+											],
+											"variable": [
+												{
+													"key": "vatId"
+												}
+											]
+										}
+									},
+									"status": "Unauthorized",
+									"code": 401,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "string"
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "FTE",
+					"item": [
+						{
+							"name": "Search FTE documents",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  //\"journalGroupName\": \"string\",\n  //\"startAccountancyYearMonth\": \"string\",\n  //\"endAccountancyYearMonth\": \"string\",\n  //\"paginationKey\": \"string\",\n  //\"orderBy\": \"string\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{api-bzd}}/Company/{{api-bzd-companyvatid}}/Documents/FTE",
+									"host": [
+										"{{api-bzd}}"
+									],
+									"path": [
+										"Company",
+										"{{api-bzd-companyvatid}}",
+										"Documents",
+										"FTE"
+									]
+								},
+								"description": "Search for FTE documents by status."
+							},
+							"response": [
+								{
+									"name": "Returns a list of FTE documents.",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											},
+											{
+												"key": "Authorization",
+												"value": "Bearer <token>",
+												"description": "Added as a part of security scheme: bearer"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"journalGroupName\": \"string\",\n  \"startAccountancyYearMonth\": \"string\",\n  \"endAccountancyYearMonth\": \"string\",\n  \"paginationKey\": \"string\",\n  \"orderBy\": \"string\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/Company/:vatId/Documents/FTE",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"Company",
+												":vatId",
+												"Documents",
+												"FTE"
+											],
+											"variable": [
+												{
+													"key": "vatId"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"items\": [\n    {\n      \"journalGroupName\": \"string\",\n      \"accountancyYear\": 2951,\n      \"accountancyMonth\": 4214,\n      \"documentDate\": \"string\",\n      \"documentNumber\": \"string\",\n      \"documentVendorVatId\": \"string\",\n      \"documentCustomerVatId\": \"string\",\n      \"documentTotalAmount\": 2035.4191823507263,\n      \"createdOn\": \"1979-09-12T16:58:21.900Z\",\n      \"documentId\": \"6d281687-4916-331b-e7d9-d8c80ee7a226\",\n      \"documentCreatedOn\": \"1977-02-28T22:56:27.825Z\",\n      \"documentName\": \"string\"\n    },\n    {\n      \"journalGroupName\": \"string\",\n      \"accountancyYear\": 577,\n      \"accountancyMonth\": 3160,\n      \"documentDate\": \"string\",\n      \"documentNumber\": \"string\",\n      \"documentVendorVatId\": \"string\",\n      \"documentCustomerVatId\": \"string\",\n      \"documentTotalAmount\": 6565.822699108173,\n      \"createdOn\": \"1993-09-10T17:10:52.646Z\",\n      \"documentId\": \"a9cf0e1f-1e51-275a-5060-80fc1e2fb5f6\",\n      \"documentCreatedOn\": \"1958-04-07T07:55:22.440Z\",\n      \"documentName\": \"string\"\n    }\n  ],\n  \"paginationKey\": \"string\"\n}"
+								},
+								{
+									"name": "Invalid request.",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											},
+											{
+												"key": "Authorization",
+												"value": "Bearer <token>",
+												"description": "Added as a part of security scheme: bearer"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"journalGroupName\": \"string\",\n  \"startAccountancyYearMonth\": \"string\",\n  \"endAccountancyYearMonth\": \"string\",\n  \"paginationKey\": \"string\",\n  \"orderBy\": \"string\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/Company/:vatId/Documents/FTE",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"Company",
+												":vatId",
+												"Documents",
+												"FTE"
+											],
+											"variable": [
+												{
+													"key": "vatId"
+												}
+											]
+										}
+									},
+									"status": "Bad Request",
+									"code": 400,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "string"
+								},
+								{
+									"name": "Unauthorized access.",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											},
+											{
+												"key": "Authorization",
+												"value": "Bearer <token>",
+												"description": "Added as a part of security scheme: bearer"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"journalGroupName\": \"string\",\n  \"startAccountancyYearMonth\": \"string\",\n  \"endAccountancyYearMonth\": \"string\",\n  \"paginationKey\": \"string\",\n  \"orderBy\": \"string\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/Company/:vatId/Documents/FTE",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"Company",
+												":vatId",
+												"Documents",
+												"FTE"
+											],
+											"variable": [
+												{
+													"key": "vatId"
+												}
+											]
+										}
+									},
+									"status": "Unauthorized",
+									"code": 401,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "string"
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "FTEExported",
+					"item": [
+						{
+							"name": "Search FTE Exported documents",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"journalGroupName\": \"string\",\n  \"startAccountancyYearMonth\": \"string\",\n  \"endAccountancyYearMonth\": \"string\",\n  \"paginationKey\": \"string\",\n  \"orderBy\": \"string\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{api-bzd}}/Company/{{api-bzd-companyvatid}}/Documents/FTEExported",
+									"host": [
+										"{{api-bzd}}"
+									],
+									"path": [
+										"Company",
+										"{{api-bzd-companyvatid}}",
+										"Documents",
+										"FTEExported"
+									]
+								},
+								"description": "Search for FTE Exported documents by status."
+							},
+							"response": [
+								{
+									"name": "Returns a list of FTE Exported documents.",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											},
+											{
+												"key": "Authorization",
+												"value": "Bearer <token>",
+												"description": "Added as a part of security scheme: bearer"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"journalGroupName\": \"string\",\n  \"startAccountancyYearMonth\": \"string\",\n  \"endAccountancyYearMonth\": \"string\",\n  \"paginationKey\": \"string\",\n  \"orderBy\": \"string\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/Company/:vatId/Documents/FTEExported",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"Company",
+												":vatId",
+												"Documents",
+												"FTEExported"
+											],
+											"variable": [
+												{
+													"key": "vatId"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"items\": [\n    {\n      \"journalGroupName\": \"string\",\n      \"accountancyYear\": 2951,\n      \"accountancyMonth\": 4214,\n      \"documentDate\": \"string\",\n      \"documentNumber\": \"string\",\n      \"documentVendorVatId\": \"string\",\n      \"documentCustomerVatId\": \"string\",\n      \"documentTotalAmount\": 2035.4191823507263,\n      \"createdOn\": \"1979-09-12T16:58:21.900Z\",\n      \"documentId\": \"6d281687-4916-331b-e7d9-d8c80ee7a226\",\n      \"documentCreatedOn\": \"1977-02-28T22:56:27.825Z\",\n      \"documentName\": \"string\"\n    },\n    {\n      \"journalGroupName\": \"string\",\n      \"accountancyYear\": 577,\n      \"accountancyMonth\": 3160,\n      \"documentDate\": \"string\",\n      \"documentNumber\": \"string\",\n      \"documentVendorVatId\": \"string\",\n      \"documentCustomerVatId\": \"string\",\n      \"documentTotalAmount\": 6565.822699108173,\n      \"createdOn\": \"1993-09-10T17:10:52.646Z\",\n      \"documentId\": \"a9cf0e1f-1e51-275a-5060-80fc1e2fb5f6\",\n      \"documentCreatedOn\": \"1958-04-07T07:55:22.440Z\",\n      \"documentName\": \"string\"\n    }\n  ],\n  \"paginationKey\": \"string\"\n}"
+								},
+								{
+									"name": "Invalid request.",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											},
+											{
+												"key": "Authorization",
+												"value": "Bearer <token>",
+												"description": "Added as a part of security scheme: bearer"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"journalGroupName\": \"string\",\n  \"startAccountancyYearMonth\": \"string\",\n  \"endAccountancyYearMonth\": \"string\",\n  \"paginationKey\": \"string\",\n  \"orderBy\": \"string\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/Company/:vatId/Documents/FTEExported",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"Company",
+												":vatId",
+												"Documents",
+												"FTEExported"
+											],
+											"variable": [
+												{
+													"key": "vatId"
+												}
+											]
+										}
+									},
+									"status": "Bad Request",
+									"code": 400,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "string"
+								},
+								{
+									"name": "Unauthorized access.",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											},
+											{
+												"key": "Authorization",
+												"value": "Bearer <token>",
+												"description": "Added as a part of security scheme: bearer"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"journalGroupName\": \"string\",\n  \"startAccountancyYearMonth\": \"string\",\n  \"endAccountancyYearMonth\": \"string\",\n  \"paginationKey\": \"string\",\n  \"orderBy\": \"string\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/Company/:vatId/Documents/FTEExported",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"Company",
+												":vatId",
+												"Documents",
+												"FTEExported"
+											],
+											"variable": [
+												{
+													"key": "vatId"
+												}
+											]
+										}
+									},
+									"status": "Unauthorized",
+									"code": 401,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "string"
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Control",
+					"item": [
+						{
+							"name": "MarkMultipleAsReceived",
+							"item": [
+								{
+									"name": "Tag multiple documents as received",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"requests\": [\n    {\n      \"documentId\": \"023f2991-6fd2-3746-e4d6-9176a113a00a\",\n      \"tagValue\": \"teste\",\n      \"lockDocument\": true\n    }\n  ]\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{api-bzd}}/Company/{{api-bzd-companyvatid}}/Documents/Control/MarkMultipleAsReceived",
+											"host": [
+												"{{api-bzd}}"
+											],
+											"path": [
+												"Company",
+												"{{api-bzd-companyvatid}}",
+												"Documents",
+												"Control",
+												"MarkMultipleAsReceived"
+											]
+										},
+										"description": "Bulk tag documents as received for a company."
+									},
+									"response": [
+										{
+											"name": "Returns the result of the bulk tag operation.",
+											"originalRequest": {
+												"method": "POST",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													},
+													{
+														"key": "Accept",
+														"value": "application/json"
+													},
+													{
+														"key": "Authorization",
+														"value": "Bearer <token>",
+														"description": "Added as a part of security scheme: bearer"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"requests\": [\n    {\n      \"documentId\": \"023f2991-6fd2-3746-e4d6-9176a113a00a\",\n      \"tagValue\": \"string\",\n      \"lockDocument\": true\n    },\n    {\n      \"documentId\": \"36d994fb-0d89-8975-727f-fe30d9663c78\",\n      \"tagValue\": \"string\",\n      \"lockDocument\": false\n    }\n  ]\n}",
+													"options": {
+														"raw": {
+															"headerFamily": "json",
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/Company/:vatId/Documents/Control/MarkMultipleAsReceived",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"Company",
+														":vatId",
+														"Documents",
+														"Control",
+														"MarkMultipleAsReceived"
+													],
+													"variable": [
+														{
+															"key": "vatId"
+														}
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "application/json"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"success\": false,\n  \"errors\": [\n    {\n      \"documentId\": \"9b159ea2-a7bc-d17c-e4dc-14ec0da32fd0\",\n      \"errorMessage\": \"string\"\n    },\n    {\n      \"documentId\": \"ba6358f6-87a1-aea4-209b-825e498e7c88\",\n      \"errorMessage\": \"string\"\n    }\n  ]\n}"
+										},
+										{
+											"name": "Invalid request.",
+											"originalRequest": {
+												"method": "POST",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													},
+													{
+														"key": "Accept",
+														"value": "application/json"
+													},
+													{
+														"key": "Authorization",
+														"value": "Bearer <token>",
+														"description": "Added as a part of security scheme: bearer"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"requests\": [\n    {\n      \"documentId\": \"023f2991-6fd2-3746-e4d6-9176a113a00a\",\n      \"tagValue\": \"string\",\n      \"lockDocument\": true\n    },\n    {\n      \"documentId\": \"36d994fb-0d89-8975-727f-fe30d9663c78\",\n      \"tagValue\": \"string\",\n      \"lockDocument\": false\n    }\n  ]\n}",
+													"options": {
+														"raw": {
+															"headerFamily": "json",
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/Company/:vatId/Documents/Control/MarkMultipleAsReceived",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"Company",
+														":vatId",
+														"Documents",
+														"Control",
+														"MarkMultipleAsReceived"
+													],
+													"variable": [
+														{
+															"key": "vatId"
+														}
+													]
+												}
+											},
+											"status": "Bad Request",
+											"code": 400,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "application/json"
+												}
+											],
+											"cookie": [],
+											"body": "string"
+										},
+										{
+											"name": "Unauthorized access.",
+											"originalRequest": {
+												"method": "POST",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													},
+													{
+														"key": "Accept",
+														"value": "application/json"
+													},
+													{
+														"key": "Authorization",
+														"value": "Bearer <token>",
+														"description": "Added as a part of security scheme: bearer"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"requests\": [\n    {\n      \"documentId\": \"023f2991-6fd2-3746-e4d6-9176a113a00a\",\n      \"tagValue\": \"string\",\n      \"lockDocument\": true\n    },\n    {\n      \"documentId\": \"36d994fb-0d89-8975-727f-fe30d9663c78\",\n      \"tagValue\": \"string\",\n      \"lockDocument\": false\n    }\n  ]\n}",
+													"options": {
+														"raw": {
+															"headerFamily": "json",
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/Company/:vatId/Documents/Control/MarkMultipleAsReceived",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"Company",
+														":vatId",
+														"Documents",
+														"Control",
+														"MarkMultipleAsReceived"
+													],
+													"variable": [
+														{
+															"key": "vatId"
+														}
+													]
+												}
+											},
+											"status": "Unauthorized",
+											"code": 401,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "application/json"
+												}
+											],
+											"cookie": [],
+											"body": "string"
+										}
+									]
+								}
+							]
+						},
+						{
+							"name": "DiscardMultipleReceived",
+							"item": [
+								{
+									"name": "Untag multiple documents as received",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"requests\": [\n    {\n      \"documentId\": \"dc3f9dc7-601f-be06-8df7-11abe96a42c7\",\n      \"tagValue\": \"teste\",\n      \"unlockDocument\": false\n    }\n  ]\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{api-bzd}}/Company/{{api-bzd-companyvatid}}/Documents/Control/DiscardMultipleReceived",
+											"host": [
+												"{{api-bzd}}"
+											],
+											"path": [
+												"Company",
+												"{{api-bzd-companyvatid}}",
+												"Documents",
+												"Control",
+												"DiscardMultipleReceived"
+											]
+										},
+										"description": "Bulk untag documents as received for a company."
+									},
+									"response": [
+										{
+											"name": "Returns the result of the bulk untag operation.",
+											"originalRequest": {
+												"method": "POST",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													},
+													{
+														"key": "Accept",
+														"value": "application/json"
+													},
+													{
+														"key": "Authorization",
+														"value": "Bearer <token>",
+														"description": "Added as a part of security scheme: bearer"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"requests\": [\n    {\n      \"documentId\": \"dc3f9dc7-601f-be06-8df7-11abe96a42c7\",\n      \"tagValue\": \"string\",\n      \"unlockDocument\": false\n    },\n    {\n      \"documentId\": \"dc193da7-9b59-e6bd-4fe9-064cdab67d6c\",\n      \"tagValue\": \"string\",\n      \"unlockDocument\": true\n    }\n  ]\n}",
+													"options": {
+														"raw": {
+															"headerFamily": "json",
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/Company/:vatId/Documents/Control/DiscardMultipleReceived",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"Company",
+														":vatId",
+														"Documents",
+														"Control",
+														"DiscardMultipleReceived"
+													],
+													"variable": [
+														{
+															"key": "vatId"
+														}
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "application/json"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"success\": false,\n  \"errors\": [\n    {\n      \"documentId\": \"9b159ea2-a7bc-d17c-e4dc-14ec0da32fd0\",\n      \"errorMessage\": \"string\"\n    },\n    {\n      \"documentId\": \"ba6358f6-87a1-aea4-209b-825e498e7c88\",\n      \"errorMessage\": \"string\"\n    }\n  ]\n}"
+										},
+										{
+											"name": "Invalid request.",
+											"originalRequest": {
+												"method": "POST",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													},
+													{
+														"key": "Accept",
+														"value": "application/json"
+													},
+													{
+														"key": "Authorization",
+														"value": "Bearer <token>",
+														"description": "Added as a part of security scheme: bearer"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"requests\": [\n    {\n      \"documentId\": \"dc3f9dc7-601f-be06-8df7-11abe96a42c7\",\n      \"tagValue\": \"string\",\n      \"unlockDocument\": false\n    },\n    {\n      \"documentId\": \"dc193da7-9b59-e6bd-4fe9-064cdab67d6c\",\n      \"tagValue\": \"string\",\n      \"unlockDocument\": true\n    }\n  ]\n}",
+													"options": {
+														"raw": {
+															"headerFamily": "json",
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/Company/:vatId/Documents/Control/DiscardMultipleReceived",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"Company",
+														":vatId",
+														"Documents",
+														"Control",
+														"DiscardMultipleReceived"
+													],
+													"variable": [
+														{
+															"key": "vatId"
+														}
+													]
+												}
+											},
+											"status": "Bad Request",
+											"code": 400,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "application/json"
+												}
+											],
+											"cookie": [],
+											"body": "string"
+										},
+										{
+											"name": "Unauthorized access.",
+											"originalRequest": {
+												"method": "POST",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													},
+													{
+														"key": "Accept",
+														"value": "application/json"
+													},
+													{
+														"key": "Authorization",
+														"value": "Bearer <token>",
+														"description": "Added as a part of security scheme: bearer"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"requests\": [\n    {\n      \"documentId\": \"dc3f9dc7-601f-be06-8df7-11abe96a42c7\",\n      \"tagValue\": \"string\",\n      \"unlockDocument\": false\n    },\n    {\n      \"documentId\": \"dc193da7-9b59-e6bd-4fe9-064cdab67d6c\",\n      \"tagValue\": \"string\",\n      \"unlockDocument\": true\n    }\n  ]\n}",
+													"options": {
+														"raw": {
+															"headerFamily": "json",
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/Company/:vatId/Documents/Control/DiscardMultipleReceived",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"Company",
+														":vatId",
+														"Documents",
+														"Control",
+														"DiscardMultipleReceived"
+													],
+													"variable": [
+														{
+															"key": "vatId"
+														}
+													]
+												}
+											},
+											"status": "Unauthorized",
+											"code": 401,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "application/json"
+												}
+											],
+											"cookie": [],
+											"body": "string"
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Document",
+					"item": [
+						{
+							"name": "Get related document info by ID",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{api-bzd}}/Company/{{api-bzd-companyvatid}}/Document/13c38e08-f40a-5fc3-81a1-541f76e27442/Related",
+									"host": [
+										"{{api-bzd}}"
+									],
+									"path": [
+										"Company",
+										"{{api-bzd-companyvatid}}",
+										"Document",
+										"13c38e08-f40a-5fc3-81a1-541f76e27442",
+										"Related"
+									]
+								},
+								"description": "Retrieves all related information for a given document ID."
+							},
+							"response": [
+								{
+									"name": "Returns related document information.",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json"
+											},
+											{
+												"key": "Authorization",
+												"value": "Bearer <token>",
+												"description": "Added as a part of security scheme: bearer"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/Company/:vatId/Document/:documentId/Related",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"Company",
+												":vatId",
+												"Document",
+												":documentId",
+												"Related"
+											],
+											"variable": [
+												{
+													"key": "vatId"
+												},
+												{
+													"key": "documentId"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"items\": [\n    {\n      \"documentId\": \"ef0d07a9-af2b-0cce-7bdb-50cf53ff3062\",\n      \"documentName\": \"string\",\n      \"documentCreatedOn\": \"2007-11-18T05:59:40.748Z\",\n      \"documentStatus\": \"string\",\n      \"relationCreatedOn\": \"2002-03-29T23:18:06.794Z\",\n      \"relationType\": \"string\",\n      \"relationComment\": \"string\"\n    },\n    {\n      \"documentId\": \"c5512945-0e7d-f660-a5f6-e9a2cc0e396b\",\n      \"documentName\": \"string\",\n      \"documentCreatedOn\": \"1949-03-13T00:48:45.378Z\",\n      \"documentStatus\": \"string\",\n      \"relationCreatedOn\": \"1969-05-20T11:24:12.931Z\",\n      \"relationType\": \"string\",\n      \"relationComment\": \"string\"\n    }\n  ]\n}"
+								},
+								{
+									"name": "Document not found.",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "Bearer <token>",
+												"description": "Added as a part of security scheme: bearer"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/Company/:vatId/Document/:documentId/Related",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"Company",
+												":vatId",
+												"Document",
+												":documentId",
+												"Related"
+											],
+											"variable": [
+												{
+													"key": "vatId"
+												},
+												{
+													"key": "documentId"
+												}
+											]
+										}
+									},
+									"status": "Not Found",
+									"code": 404,
+									"_postman_previewlanguage": "text",
+									"header": [],
+									"cookie": [],
+									"body": ""
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Accounting",
+			"item": [
+				{
+					"name": "Accounting document",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"requests\": [\r\n    {\r\n      \"documentId\": \"3a18632d-5ecb-4c77-bb1c-b5575d529624\",\r\n      \"accountingMonth\": \"2025-02-10\",\r\n      \"accountingNumber\": \"2025-02-10 99 610\",\r\n      \"documentType\": \"FS\",\r\n      \"diaryCode\": \"99\",\r\n      \"diaryName\": \"FATURA SIMPLIFICADA\",\r\n      \"accountingComment\": \"teste\",\r\n      \"accountingUserName\": \"Nome Utilizador\",\r\n      \"accountingType\": \"Manual\",\r\n      \"fields\": {\r\n        \"invoiceNumber\": \"FS 1\",\r\n        \"invoiceDate\": \"2025-02-10\",\r\n        \"vatid\": \"PT996310800\",\r\n        \"total\": 123.00,\r\n        \"customerVATID\": \"{{companyvatid}}\",\r\n        \"documentType\": \"FS\",\r\n        \"supplierDescription\": \"Nome fornecedor\",\r\n        \"customerDescription\": \"Nome empresa\",\r\n        \"taxLines\": [\r\n          {\r\n            \"netAmount\": 100,\r\n            \"taxRate\": 23.00,\r\n            \"taxAmount\": 23.00,\r\n            \"taxRateType\": \"NOR\",\r\n            \"taxCountryRegion\": \"PT\"\r\n          }\r\n        ],\r\n        \"documentTypeCode\": \"1\",\r\n        \"documentTypeDescription\": \"fs\",\r\n        \"launchNumber\": \"610\",\r\n        \"netAmountSum\": 100,\r\n        \"taxAmountSum\": 23,\r\n        \"discount\": 0,\r\n        \"country\": \"PT\",\r\n        \"operationRegion\": \"Portugal Continental\",\r\n        \"activitySector\": \"Consulting\",\r\n        \"fiscalEntity\": \"Nacional-Normal\",\r\n        \"entityType\": \"F\",\r\n        \"entityName\": \"Fornecedores\",\r\n        \"retention\": 0,\r\n        \"currency\": \"EUR\",\r\n        \"additionalFields\": [\r\n          {\r\n            \"account\": \"123\",\r\n            \"debit\": 0,\r\n            \"credit\": 0,\r\n            \"tax\": \"0.00\",\r\n            \"deductionPercentage\": 0,\r\n            \"recapitulation\": true,\r\n            \"entityType\": \"F\",\r\n            \"supplierVatId\": \"PT996310800\",\r\n            \"description\": \"FS 2023/1\"\r\n          }\r\n        ]\r\n      },\r\n      \"timestamp\": \"2025-10-23T15:19:02.388Z\"\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-bzd}}/Company/{{api-bzd-companyvatid}}/AccountingOperations",
+							"host": [
+								"{{api-bzd}}"
+							],
+							"path": [
+								"Company",
+								"{{api-bzd-companyvatid}}",
+								"AccountingOperations"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Contabilizar documento",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"documentId\": \"d1a5e726-c844-41ec-8400-03d8717837fa\",\r\n    \"accountingMonth\": \"2025-02-10\",\r\n    \"accountingNumber\": \"2025-02-10 1 4\",\r\n    \"documentType\": \"FT\",\r\n    \"diaryCode\": \"1\",\r\n    \"diaryName\": \"COMPRAS\",\r\n    \"accountingType\": \"Manual\",\r\n    \"accountingVatId\": \"{{companyvatid}}\",\r\n    \"accountingUserName\": \"Accountant Name\",\r\n    \"accountingComment\": \"{{$randomLoremText}}\",\r\n    \"timestamp\": \"{{$isoTimestamp}}\",\r\n    \"fields\": {\r\n        \"documentType\": \"FT\",\r\n        \"vatid\": \"PT993710409\",\r\n        \"supplierDescription\": \"{{$randomCompanyName}}\",\r\n        \"customerVATID\": \"PT599999993\",\r\n        \"customerDescription\": \"{{$randomCompanyName}}\",\r\n        \"invoiceNumber\": \"1/33\",\r\n        \"invoiceDate\": \"2025-02-10\",\r\n        \"launchNumber\": \"4\",\r\n        \"total\": 116.89,\r\n        \"netAmount0\": 10.00,\r\n        \"netAmount1\": 0.0,\r\n        \"netAmount2\": 0.0,\r\n        \"netAmount3\": 0.0,\r\n        \"taxRate1\": 23.0,\r\n        \"taxRate2\": 0.0,\r\n        \"taxRate3\": 0.0,\r\n        \"taxAmount1\": 2.30,\r\n        \"taxAmount2\": 0.0,\r\n        \"taxAmount3\": 0.0,\r\n        \"netAmountSum\": 0.0,\r\n        \"taxAmountSum\": 0.0,\r\n        \"discount\": 0.0,\r\n        \"retention\": 0.0,\r\n        \"documentTypeCode\": \"1\",\r\n        \"documentTypeDescription\": \"FaturaX\",\r\n        \"country\": \"PT\",\r\n        \"operationRegion\": \"Portugal Continental\",\r\n        \"activitySector\": \"Consulting\",\r\n        \"fiscalEntity\": \"Nacional-Normal\",\r\n        \"entityType\": \"F\",\r\n        \"entityName\": \"Fornecedores\",\r\n        \"currency\": \"{{$randomCurrencyCode}}\",\r\n        \"additionalFields\": [\r\n            {\r\n                \"account\": \"{{$randomBankAccount}}\",\r\n                \"debit\": 0.00,\r\n                \"credit\": 0.0,\r\n                \"tax\": 0.0,\r\n                \"deductionPercentage\": 0.0,\r\n                \"recapitulation\": false,\r\n                \"entityType\": \"F\",\r\n                \"supplierVatId\": \"PT577305980\",\r\n                \"description\": \"FT 2023/1\"\r\n            },\r\n            {\r\n                \"account\": \"{{$randomBankAccount}}\",\r\n                \"debit\": 0.00,\r\n                \"credit\": 0.0,\r\n                \"tax\": 0.0,\r\n                \"deductionPercentage\": 0.0,\r\n                \"recapitulation\": false,\r\n                \"entityType\": \"F\",\r\n                \"supplierVatId\": \"PT577305980\",\r\n                \"description\": \"FT 2023/1\"\r\n            }\r\n        ]\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{api-integration}}/AccountingOperations",
+									"host": [
+										"{{api-integration}}"
+									],
+									"path": [
+										"AccountingOperations"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "plain",
+							"header": [
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=31536000; includeSubDomains"
+								},
+								{
+									"key": "Permissions-Policy",
+									"value": "microphone=(), geolocation=()"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "same-origin"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "SAMEORIGIN"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 02 Jun 2025 11:58:04 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "0"
+								}
+							],
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "400 - AccountingNumber and InvoiceDate",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"documentId\": \"c52f7125-5e9b-45ff-b555-e52ea2a33ff2\",\r\n    \"accountingMonth\": \"2024-02-10\",\r\n    \"accountingNumber\": \"2024-02-10 99 5\",\r\n    \"documentType\": \"FT\",\r\n    \"diaryCode\": \"99\",\r\n    \"diaryName\": \"API-TESTE\",\r\n    \"accountingType\": \"Manual\",\r\n    \"accountingVatId\": \"{{companyvatid}}\",\r\n    \"accountingUserName\": \"Accountant Name\",\r\n    \"accountingComment\": \"{{$randomLoremText}}\",\r\n    \"timestamp\": \"{{$isoTimestamp}}\",\r\n    \"fields\": {\r\n        \"documentType\": \"FT\",\r\n        \"vatid\": \"PT993710409\",\r\n        \"supplierDescription\": \"{{$randomCompanyName}}\",\r\n        \"customerVATID\": \"PT599999993\",\r\n        \"customerDescription\": \"{{$randomCompanyName}}\",\r\n        \"invoiceNumber\": \"1/33\",\r\n        \"invoiceDate\": \"2024-02-10\",\r\n        \"launchNumber\": \"5\",\r\n        \"total\": 116.89,\r\n        \"netAmount0\": 10.00,\r\n        \"netAmount1\": 0.0,\r\n        \"netAmount2\": 0.0,\r\n        \"netAmount3\": 0.0,\r\n        \"taxRate1\": 23.0,\r\n        \"taxRate2\": 0.0,\r\n        \"taxRate3\": 0.0,\r\n        \"taxAmount1\": 2.30,\r\n        \"taxAmount2\": 0.0,\r\n        \"taxAmount3\": 0.0,\r\n        \"netAmountSum\": 0.0,\r\n        \"taxAmountSum\": 0.0,\r\n        \"discount\": 0.0,\r\n        \"retention\": 0.0,\r\n        \"documentTypeCode\": \"1\",\r\n        \"documentTypeDescription\": \"FaturaX\",\r\n        \"country\": \"PT\",\r\n        \"operationRegion\": \"Portugal Continental\",\r\n        \"activitySector\": \"Consulting\",\r\n        \"fiscalEntity\": \"Nacional-Normal\",\r\n        \"entityType\": \"F\",\r\n        \"entityName\": \"Fornecedores\",\r\n        \"currency\": \"{{$randomCurrencyCode}}\",\r\n        \"additionalFields\": [\r\n            {\r\n                \"account\": \"{{$randomBankAccount}}\",\r\n                \"debit\": 0.00,\r\n                \"credit\": 0.0,\r\n                \"tax\": 0.0,\r\n                \"deductionPercentage\": 0.0,\r\n                \"recapitulation\": false,\r\n                \"entityType\": \"F\",\r\n                \"supplierVatId\": \"PT577305980\",\r\n                \"description\": \"FT 2023/1\"\r\n            },\r\n            {\r\n                \"account\": \"{{$randomBankAccount}}\",\r\n                \"debit\": 0.00,\r\n                \"credit\": 0.0,\r\n                \"tax\": 0.0,\r\n                \"deductionPercentage\": 0.0,\r\n                \"recapitulation\": false,\r\n                \"entityType\": \"F\",\r\n                \"supplierVatId\": \"PT577305980\",\r\n                \"description\": \"FT 2023/1\"\r\n            }\r\n        ]\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{api-integration}}/AccountingOperations",
+									"host": [
+										"{{api-integration}}"
+									],
+									"path": [
+										"AccountingOperations"
+									]
+								}
+							},
+							"status": "- AccountingNumber and InvoiceDate",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=31536000; includeSubDomains"
+								},
+								{
+									"key": "Permissions-Policy",
+									"value": "microphone=(), geolocation=()"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "same-origin"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "SAMEORIGIN"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 02 Jun 2025 12:06:52 GMT"
+								}
+							],
+							"cookie": [
+								{
+									"expires": "Invalid Date",
+									"domain": "",
+									"path": ""
+								}
+							],
+							"body": "\"Conflict on AccountingNumber and InvoiceDate.\""
+						},
+						{
+							"name": "Same accounting number",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"documentId\": \"7ced8c54-09af-441a-b117-51c3d5d61943\",\r\n    \"accountingMonth\": \"2024-02-10\",\r\n    \"accountingNumber\": \"2024-02-10 99 5\",\r\n    \"documentType\": \"FS\",\r\n    \"diaryCode\": \"99\",\r\n    \"diaryName\": \"API-TESTE\",\r\n    \"accountingType\": \"Manual\",\r\n    \"accountingVatId\": \"{{companyvatid}}\",\r\n    \"accountingUserName\": \"Accountant Name\",\r\n    \"accountingComment\": \"{{$randomLoremText}}\",\r\n    \"timestamp\": \"{{$isoTimestamp}}\",\r\n    \"fields\": {\r\n        \"documentType\": \"FS\",\r\n        \"vatid\": \"PT993710409\",\r\n        \"supplierDescription\": \"{{$randomCompanyName}}\",\r\n        \"customerVATID\": \"PT599999993\",\r\n        \"customerDescription\": \"{{$randomCompanyName}}\",\r\n        \"invoiceNumber\": \"1/33\",\r\n        \"invoiceDate\": \"2024-02-10\",\r\n        \"launchNumber\": \"5\",\r\n        \"total\": 116.89,\r\n        \"netAmount0\": 10.00,\r\n        \"netAmount1\": 0.0,\r\n        \"netAmount2\": 0.0,\r\n        \"netAmount3\": 0.0,\r\n        \"taxRate1\": 23.0,\r\n        \"taxRate2\": 0.0,\r\n        \"taxRate3\": 0.0,\r\n        \"taxAmount1\": 2.30,\r\n        \"taxAmount2\": 0.0,\r\n        \"taxAmount3\": 0.0,\r\n        \"netAmountSum\": 0.0,\r\n        \"taxAmountSum\": 0.0,\r\n        \"discount\": 0.0,\r\n        \"retention\": 0.0,\r\n        \"documentTypeCode\": \"1\",\r\n        \"documentTypeDescription\": \"FaturaX\",\r\n        \"country\": \"PT\",\r\n        \"operationRegion\": \"Portugal Continental\",\r\n        \"activitySector\": \"Consulting\",\r\n        \"fiscalEntity\": \"Nacional-Normal\",\r\n        \"entityType\": \"F\",\r\n        \"entityName\": \"Fornecedores\",\r\n        \"currency\": \"{{$randomCurrencyCode}}\",\r\n        \"additionalFields\": [\r\n            {\r\n                \"account\": \"{{$randomBankAccount}}\",\r\n                \"debit\": 0.00,\r\n                \"credit\": 0.0,\r\n                \"tax\": 0.0,\r\n                \"deductionPercentage\": 0.0,\r\n                \"recapitulation\": false,\r\n                \"entityType\": \"F\",\r\n                \"supplierVatId\": \"PT577305980\",\r\n                \"description\": \"FT 2023/1\"\r\n            },\r\n            {\r\n                \"account\": \"{{$randomBankAccount}}\",\r\n                \"debit\": 0.00,\r\n                \"credit\": 0.0,\r\n                \"tax\": 0.0,\r\n                \"deductionPercentage\": 0.0,\r\n                \"recapitulation\": false,\r\n                \"entityType\": \"F\",\r\n                \"supplierVatId\": \"PT577305980\",\r\n                \"description\": \"FT 2023/1\"\r\n            }\r\n        ]\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{api-integration}}/AccountingOperations",
+									"host": [
+										"{{api-integration}}"
+									],
+									"path": [
+										"AccountingOperations"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=31536000; includeSubDomains"
+								},
+								{
+									"key": "Permissions-Policy",
+									"value": "microphone=(), geolocation=()"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "same-origin"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "SAMEORIGIN"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 02 Jun 2025 12:12:04 GMT"
+								}
+							],
+							"cookie": [],
+							"body": "\"There is already an accounted document with the same accounting number.\""
+						}
+					]
+				},
+				{
+					"name": "Remove accounted document",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"documentId\": \"3834fa1b-c60b-4426-8e98-08e8e023bd45\",\r\n  \"accountingComment\": \"{{$randomLoremParagraph}}\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-bzd}}/Company/{{api-bzd-companyvatid}}/AccountingOperations",
+							"host": [
+								"{{api-bzd}}"
+							],
+							"path": [
+								"Company",
+								"{{api-bzd-companyvatid}}",
+								"AccountingOperations"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"documentId\": \"e109ed7f-630a-4ca9-849c-e018f47d357f\",\r\n    \"accountingComment\": \"TESTE\",\r\n    \"accountingVatId\": \"{{companyvatid}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{endpoint}}/AccountingOperations",
+									"host": [
+										"{{endpoint}}"
+									],
+									"path": [
+										"AccountingOperations"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "plain",
+							"header": [
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=31536000; includeSubDomains"
+								},
+								{
+									"key": "Permissions-Policy",
+									"value": "microphone=(), geolocation=()"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "same-origin"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "SAMEORIGIN"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 21 Apr 2025 09:38:31 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "0"
+								}
+							],
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Not Found Document",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"documentId\": \"8b451b95-7cd3-4db1-8643-5d19f4816eba\",\r\n    \"accountingComment\": \"TESTE\",\r\n    \"accountingVatId\": \"{{companyvatid}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{endpoint}}/AccountingOperations",
+									"host": [
+										"{{endpoint}}"
+									],
+									"path": [
+										"AccountingOperations"
+									]
+								}
+							},
+							"status": "Conflict",
+							"code": 409,
+							"_postman_previewlanguage": "plain",
+							"header": [
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "text/plain; charset=utf-8"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=31536000; includeSubDomains"
+								},
+								{
+									"key": "Permissions-Policy",
+									"value": "microphone=(), geolocation=()"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "same-origin"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "SAMEORIGIN"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 21 Apr 2025 09:39:51 GMT"
+								}
+							],
+							"cookie": [],
+							"body": "Document not found"
+						}
+					]
+				},
+				{
+					"name": "Accounted document update metadata",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"documentId\": \"b607d800-eac7-4a5d-8114-31c240ae9cbc\",\r\n    \"accountingNumber\": \"2023-01-16 1 000111\",\r\n    \"accountingVatId\": \"{{companyvatid}}\",\r\n    \"accountingComment\": \"XPTO Comment TESTE\",\r\n    \"fields\": {\r\n        \"documentType\": \"FS\",\r\n        \"vatid\": \"PT996310800\",\r\n        \"supplierDescription\": \"{{$randomCompanyName}}\",\r\n        \"customerVATID\": \"{{companyvatid}}\",\r\n        \"customerDescription\": \"{{$randomCompanyName}}\",\r\n        \"invoiceNumber\": \"FT 1/33\",\r\n        \"invoiceDate\": \"2025-02-10\",\r\n        \"launchNumber\": \"6\",\r\n        \"total\": 123.00,\r\n        \"taxlines\" : [\r\n            {\r\n            \"netAmount\": 100,\r\n            \"taxRate\": 23,\r\n            \"taxAmount\": 23,\r\n            \"taxRateType\": \"NOR\",\r\n            \"taxCountryRegion\": \"PT\"\r\n            }\r\n        ],\r\n        \"netAmountSum\": 0.0,\r\n        \"taxAmountSum\": 0.0,\r\n        \"discount\": 0.0,\r\n        \"retention\": 0.0,\r\n        \"documentTypeCode\": \"1\",\r\n        \"documentTypeDescription\": \"FaturaX\",\r\n        \"country\": \"PT\",\r\n        \"operationRegion\": \"Portugal Continental\",\r\n        \"activitySector\": \"Consulting\",\r\n        \"fiscalEntity\": \"Nacional-Normal\",\r\n        \"entityType\": \"F\",\r\n        \"entityName\": \"Fornecedores\",\r\n        \"currency\": \"{{$randomCurrencyCode}}\",\r\n        \"additionalFields\": [\r\n            {\r\n                \"account\": \"{{$randomBankAccount}}\",\r\n                \"debit\": 0.00,\r\n                \"credit\": 0.0,\r\n                \"tax\": 0.0,\r\n                \"deductionPercentage\": 0.0,\r\n                \"recapitulation\": false,\r\n                \"entityType\": \"F\",\r\n                \"supplierVatId\": \"PT577305980\",\r\n                \"description\": \"FT 1/33\"\r\n            }\r\n        ]\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-bzd}}/Company/{{api-bzd-companyvatid}}/AccountingOperations",
+							"host": [
+								"{{api-bzd}}"
+							],
+							"path": [
+								"Company",
+								"{{api-bzd-companyvatid}}",
+								"AccountingOperations"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Match",
+			"item": [
+				{
+					"name": "Full match documents",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"requests\": [\r\n    {\r\n      \"supplierVatId\": \"PT999999990\",\r\n      \"documentNumber\": \"FT1/1\",\r\n      \"documentDate\": \"2025-10-23\",\r\n      \"documentTotal\": 0.00\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-bzd}}/Company/{{api-bzd-companyvatid}}/Documents/Match/FullMatch",
+							"host": [
+								"{{api-bzd}}"
+							],
+							"path": [
+								"Company",
+								"{{api-bzd-companyvatid}}",
+								"Documents",
+								"Match",
+								"FullMatch"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Full match documents by ATCUD",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"requests\": [\r\n    {\r\n      \"atcud\": \"ABCDEFG-01\"\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-bzd}}/Company/{{api-bzd-companyvatid}}/Documents/Match/FullMatch/ByATCUD",
+							"host": [
+								"{{api-bzd}}"
+							],
+							"path": [
+								"Company",
+								"{{api-bzd-companyvatid}}",
+								"Documents",
+								"Match",
+								"FullMatch",
+								"ByATCUD"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Partial match documents",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"requests\": [\r\n    {\r\n      \"supplierVatId\": \"PT999999990\",\r\n      \"documentNumber\": \"FT1/1\",\r\n      \"documentDate\": \"2025-10-23\",\r\n      \"documentTotal\": 0.00\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-bzd}}/Company/{{api-bzd-companyvatid}}/Documents/Match/PartialMatch",
+							"host": [
+								"{{api-bzd}}"
+							],
+							"path": [
+								"Company",
+								"{{api-bzd-companyvatid}}",
+								"Documents",
+								"Match",
+								"PartialMatch"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Get companies for current user",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{api-bzd}}/User/Companies",
+							"host": [
+								"{{api-bzd}}"
+							],
+							"path": [
+								"User",
+								"Companies"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "oauth2",
+		"oauth2": [
+			{
+				"key": "password",
+				"value": "{{api-bzd-user_password}}",
+				"type": "string"
+			},
+			{
+				"key": "username",
+				"value": "{{api-bzd-user_email}}",
+				"type": "string"
+			},
+			{
+				"key": "clientSecret",
+				"value": "{{api-bzd-identity-client_secret}}",
+				"type": "string"
+			},
+			{
+				"key": "clientId",
+				"value": "{{api-bzd-identity-client_id}}",
+				"type": "string"
+			},
+			{
+				"key": "accessTokenUrl",
+				"value": "{{api-bzd-identity}}",
+				"type": "string"
+			},
+			{
+				"key": "scope",
+				"value": "api1 api2",
+				"type": "string"
+			},
+			{
+				"key": "grant_type",
+				"value": "password_credentials",
+				"type": "string"
+			},
+			{
+				"key": "addTokenTo",
+				"value": "header",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "api-bzd-identity",
+			"value": "https://arquivodigitalpp.bizdocs.mobi/identity/connect/token"
+		},
+		{
+			"key": "api-bzd",
+			"value": "https://nikepp.azurewebsites.net/api/"
+		},
+		{
+			"key": "api-bzd-identity-client_secret",
+			"value": "Incentea"
+		},
+		{
+			"key": "api-bzd-identity-client_id",
+			"value": ""
+		},
+		{
+			"key": "api-bzd-user_email",
+			"value": ""
+		},
+		{
+			"key": "api-bzd-user_password",
+			"value": ""
+		},
+		{
+			"key": "api-bzd-companyvatid",
+			"value": "",
+			"type": "default"
+		}
+	]
+}
