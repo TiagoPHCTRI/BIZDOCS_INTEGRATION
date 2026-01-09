@@ -83,7 +83,7 @@ if __name__ == "__main__":
         
         # Simular uso após 4.5 minutos para forçar a atualização na próxima chamada
         print("\n--- Simulando 4.5 minutos de uso... ---")
-        time.sleep(270) 
+        
         
         token = get_access_token() # Deve solicitar um novo token
         if token:

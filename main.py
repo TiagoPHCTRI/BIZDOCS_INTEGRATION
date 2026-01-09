@@ -1,358 +1,416 @@
-# main.py
 """
-Main de demonstração para chamar APIs protegidas, processar respostas por tipo
-e gerar relatórios em PDF com metadados, pedido/resposta e sumário.
+Minimal helper to call the ExtractedMetadata endpoint.
 
-Funcionalidades adicionadas:
-- Mapeamento de processadores por tipo de conteúdo
-- Geração de PDF (em ./reports) com informações detalhadas
-- Função de exemplo `simulate_responses` para gerar relatórios locais
+This script is intentionally minimal and follows the `auth_manager` style you requested.
 
-Leia o README.md para detalhes de campos do PDF e como estender os processadores.
+Defaults and placeholders:
+- Default VAT id: PT504419811
+- Default api-bzd: https://nikepp.azurewebsites.net/api/
+
+The script accepts a base URL or a template using placeholders like
+  {{api-bzd}} and {{api-bzd-companyvatid}}.
+
+Example endpoint template you provided:
+  {{api-bzd}}/Company/{{api-bzd-companyvatid}}/Documents/ExtractedMetadata
+
+Usage (PowerShell):
+  python main.py --url "{{api-bzd}}" --ids id1,id2
+  python main.py --url https://nikepp.azurewebsites.net/api/ --ids id1,id2 --no-token
+
+If you want machine-readable output for Visual FoxPro, use --machine-json which prints a single-line JSON
+with status, url and body (body is JSON if response Content-Type is application/json, otherwise a truncated text).
 """
 
 import os
+import re
 import time
 import json
+import argparse
 import requests
 import auth_manager
-from response_processors import process_response
-from pdf_utils import generate_api_report_pdf
-import typing
-import argparse
-import pathlib
-import urllib.parse
 
 
-def _load_method_from_postman(postman_path: str, method_name: str) -> typing.Tuple[str, str, typing.Optional[dict]]:
-    """Carrega um método por nome a partir de uma Postman collection exportada.
+DEFAULT_API_BZD = os.environ.get('API_BZD', 'https://nikepp.azurewebsites.net/api/')
+DEFAULT_VATID = os.environ.get('API_BZD_COMPANYVATID', 'PT504419811')
 
-    Procura recursivamente por um item cujo `name` corresponde a `method_name`.
-    Retorna (url, method, payload_template).
+# --- User-editable defaults: put your base URL, VAT id and example document ids here ---
+# Keep DOCUMENT_IDS empty; you'll receive these ids from your method and can either set them
+# here or pass via --ids when running the script.
+BASE_URL = DEFAULT_API_BZD
+VATID = DEFAULT_VATID
+DOCUMENT_IDS = []  # e.g. ['abc-123', 'def-456']
+IN_ACCOUNTING_ITEMS = []  # populated by call_in_accounting()
+DEBUG = False
+IN_ACCOUNTING_RESPONSE = None  # full parsed response object (items + paginationKey)
+
+
+def apply_placeholders(s: str, vars_map: dict):
+    if not isinstance(s, str):
+        return s
+    out = s
+    for m in re.findall(r"\{\{([^}]+)\}\}", s):
+        key = m.strip()
+        if key in vars_map:
+            out = out.replace('{{' + key + '}}', vars_map[key])
+        else:
+            env = os.environ.get(key)
+            if env is not None:
+                out = out.replace('{{' + key + '}}', env)
+    return out
+
+
+def build_extracted_metadata_endpoint(base_or_template: str, vatid: str, vars_map: dict):
+    # apply placeholders if present
+    resolved = apply_placeholders(base_or_template, vars_map)
+    resolved = resolved.rstrip('/')
+    if '/Company/' in resolved:
+        # already a full path; ensure vatid placeholders replaced
+        resolved = resolved.replace('{vatId}', vatid).replace('{vatid}', vatid)
+        return resolved
+    # otherwise assume it's a base URL (scheme+host+maybe /api)
+    return f"{resolved}/Company/{vatid}/Documents/ExtractedMetadata"
+
+
+def call_extracted_metadata(vatid=None, timeout=30, vars_map=None):
+    """Call the ExtractedMetadata endpoint.
+
+    Signature: call_extracted_metadata(vatid)
+
+    - vatid: company VAT id to use for this call. If omitted, uses module VATID.
+    The function reads document ids and base URL from module-level variables.
     """
-    try:
-        with open(postman_path, 'r', encoding='utf-8') as f:
-            col = json.load(f)
-    except Exception as e:
-        raise
+    # resolve vatid and other module-level values
+    vatid = vatid or VATID
+    base_url = BASE_URL
+    document_ids = list(DOCUMENT_IDS)
 
-    def find_item(items, target):
-        for it in items:
-            if it.get('name') == target and 'request' in it:
-                return it
-            # nested
-            if 'item' in it and isinstance(it['item'], list):
-                found = find_item(it['item'], target)
-                if found:
-                    return found
-        return None
+    if not isinstance(document_ids, (list, tuple)) or not document_ids:
+        raise ValueError('DOCUMENT_IDS must be a non-empty list or tuple of document id strings')
 
-    root_items = col.get('item', [])
-    item = find_item(root_items, method_name)
-    if not item:
-        # try to interpret method_name as path with slashes
-        parts = method_name.split('/')
-        def find_by_path(items, parts):
-            if not parts:
-                return None
-            name = parts[0]
-            for it in items:
-                if it.get('name') == name:
-                    if len(parts) == 1:
-                        return it
-                    if 'item' in it:
-                        return find_by_path(it['item'], parts[1:])
-            return None
-        item = find_by_path(root_items, parts)
+    vars_map = vars_map or {}
+    # defaults
+    vars_map.setdefault('api-bzd', DEFAULT_API_BZD)
+    vars_map.setdefault('api-bzd-companyvatid', DEFAULT_VATID)
 
-    # if still not found, try partial/case-insensitive match over request items
-    if not item:
-        lower = method_name.lower()
-        def find_partial(items):
-            for it in items:
-                if 'request' in it and lower in (it.get('name') or '').lower():
-                    return it
-                if 'item' in it:
-                    found = find_partial(it['item'])
-                    if found:
-                        return found
-            return None
-        item = find_partial(root_items)
+    endpoint = build_extracted_metadata_endpoint(base_url, vatid, vars_map)
 
-    if not item or 'request' not in item:
-        raise KeyError(f"Method '{method_name}' not found in Postman collection")
-
-    req = item['request']
-    method = req.get('method', 'GET')
-    # extract URL: prefer raw then construct
-    url = None
-    url_obj = req.get('url')
-    if isinstance(url_obj, dict):
-        url = url_obj.get('raw')
-        if not url:
-            # try host + path
-            host = ''.join(url_obj.get('host', []) or [])
-            path = '/'.join(url_obj.get('path', []) or [])
-            if host:
-                url = host.rstrip('/') + '/' + path.lstrip('/')
-    elif isinstance(url_obj, str):
-        url = url_obj
-
-    # body template
-    payload = None
-    body = req.get('body')
-    if isinstance(body, dict):
-        raw = body.get('raw')
-        if raw:
-            try:
-                payload = json.loads(raw)
-            except Exception:
-                # keep as string if not JSON
-                payload = raw
-
-    return url, method, payload
-
-
-def call_protected_api_and_report(url, method='GET', payload=None, out_dir='reports'):
-    """Chama a API usando token obtido por `auth_manager`, processa a resposta
-    usando `response_processors` e gera um PDF de relatório em `out_dir`.
-    """
-    os.makedirs(out_dir, exist_ok=True)
-
-    access_token = auth_manager.get_access_token()
-    if not access_token:
-        raise RuntimeError("Não foi possível obter um token de acesso.")
-
-    # Mostrar validade do token (como antes)
+    headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
+    # always use token
+    token = auth_manager.get_access_token()
+    if not token:
+        raise RuntimeError('Não foi possível obter token de acesso')
     try:
         expiry = auth_manager.TOKEN_INFO.get('expiry_timestamp')
         if expiry:
             print(f"A utilizar token que expira em: {time.ctime(expiry)}")
     except Exception:
-        # Não falhar por causa da impressão de validade
         pass
+    headers['Authorization'] = f'Bearer {token}'
 
-    headers = {
-        "Authorization": f"Bearer {access_token}",
-    }
-    if method.upper() == 'GET':
-        resp = requests.get(url, headers=headers)
-    else:
-        headers['Content-Type'] = 'application/json'
-        resp = requests.request(method, url, headers=headers, json=payload)
+    payload = {'requests': list(document_ids)}
 
-    timestamp = time.time()
+    resp = requests.post(endpoint, headers=headers, json=payload, timeout=timeout)
 
-    # Construir objetos de metadados/req/resp para o PDF
-    metadata = {
-        'generated_at': time.ctime(timestamp),
-        'api_endpoint': url,
-        'method': method.upper(),
-    }
-
-    request_info = {
-        'headers': dict(resp.request.headers) if resp.request is not None else {},
-        'body_summary': (json.dumps(payload, ensure_ascii=False, indent=2) if payload else None),
-    }
-
-    # Processar a resposta (detecção do tipo + processamento específico)
-    proc_result = process_response(resp)
-
-    response_info = {
-        'status_code': resp.status_code,
-        'headers': dict(resp.headers),
-        'detected_type': proc_result.get('type'),
-        'summary': proc_result.get('summary'),
-        'artifact': proc_result.get('artifact'),
-    }
-
-    # Nome do ficheiro de saída
-    safe_endpoint = url.replace('://', '_').replace('/', '_')
-    out_pdf = os.path.join(out_dir, f"report_{safe_endpoint}_{int(timestamp)}.pdf")
-
-    generate_api_report_pdf(out_pdf, metadata, request_info, response_info, notes=proc_result.get('notes'))
-
-    print(f"PDF gerado: {out_pdf}")
-    return out_pdf
+    return resp
 
 
-def simulate_responses(out_dir='reports'):
-    """Gera exemplos de relatórios usando vários tipos de resposta simulados.
+def call_in_accounting(vatid=None, payload=None, timeout=30, vars_map=None):
+    """Call the Documents/InAccounting endpoint and store returned items in module variable.
 
-    Útil para validar os processadores e inspecionar o layout do PDF.
+    - vatid: company VAT id (defaults to module VATID)
+    - payload: dict to send; if None, uses the default body provided by user
     """
-    os.makedirs(out_dir, exist_ok=True)
+    vatid = vatid or VATID
+    base_url = BASE_URL
 
-    # Dummy response object para testes offline
-    class DummyResponse:
-        def __init__(self, content, headers, status_code=200, request_headers=None):
-            self._content = content
-            self.headers = headers
-            self.status_code = status_code
-            self.request = type('R', (), {'headers': request_headers or {}})()
+    vars_map = vars_map or {}
+    vars_map.setdefault('api-bzd', DEFAULT_API_BZD)
+    vars_map.setdefault('api-bzd-companyvatid', DEFAULT_VATID)
 
-        @property
-        def content(self):
-            return self._content
+    # build endpoint
+    resolved = apply_placeholders(base_url, vars_map)
+    resolved = resolved.rstrip('/')
+    if '/Company/' in resolved:
+        endpoint = resolved.replace('{vatId}', vatid).replace('{vatid}', vatid)
+        # ensure path ends with Documents/InAccounting
+        if not endpoint.endswith('/Documents/InAccounting'):
+            endpoint = endpoint.rstrip('/') + '/Documents/InAccounting'
+    else:
+        endpoint = f"{resolved}/Company/{vatid}/Documents/InAccounting"
 
-        def json(self):
-            return json.loads(self._content.decode('utf-8'))
+    # mirror Postman headers precisely to avoid server-side differences
+    headers = {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Accept': 'application/json; charset=utf-8',
+        'Request-Context': 'appId=',
+        'User-Agent': 'PostmanRuntime/7.29.0'
+    }
+    token = auth_manager.get_access_token()
+    if not token:
+        raise RuntimeError('Não foi possível obter token de acesso')
+    headers['Authorization'] = f'Bearer {token}'
 
-    samples = [
-        DummyResponse(json.dumps({'ok': True, 'items': [1, 2, 3]}).encode('utf-8'), {'Content-Type': 'application/json; charset=utf-8'}),
-        DummyResponse(b"<root><a>1</a><b>two</b></root>", {'Content-Type': 'application/xml'}),
-        DummyResponse(b'%PDF-1.4\n%\xe2\xe3\xcf\xd3\n...', {'Content-Type': 'application/pdf'}, status_code=200),
-        DummyResponse(b'a,b,c\n1,2,3', {'Content-Type': 'text/csv'}),
-        DummyResponse(b'plain text response', {'Content-Type': 'text/plain'})
-    ]
+    if payload is None:
+        payload = {
+            "documentStatus": [
+                "accountvalidation",
+                "manualentry"
+            ]
+        }
 
-    for i, sample in enumerate(samples, start=1):
-        proc = process_response(sample)
-        metadata = {'generated_at': time.ctime(), 'api_endpoint': f'simulated://sample/{i}', 'method': 'SIM'}
-        request_info = {'headers': {}, 'body_summary': None}
-        response_info = {'status_code': sample.status_code, 'headers': sample.headers, 'detected_type': proc.get('type'), 'summary': proc.get('summary'), 'artifact': proc.get('artifact')}
-        out_pdf = os.path.join(out_dir, f"sim_report_{i}.pdf")
-        generate_api_report_pdf(out_pdf, metadata, request_info, response_info, notes=proc.get('notes'))
-        print(f"Gerado: {out_pdf} (tipo {proc.get('type')})")
-
-
-def _cli():
-    parser = argparse.ArgumentParser(description='BizDocs_Integrator CLI - gerar relatórios de API')
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument('--simulate', action='store_true', help='Gerar relatórios de simulação (sem chamadas externas)')
-    group.add_argument('--url', help='URL da API a chamar (quando não usa um método nomeado)')
-    parser.add_argument('--method', default='GET', help='HTTP method a usar (GET/POST/PUT/DELETE)')
-    parser.add_argument('--payload-file', help='Ficheiro JSON com payload para o body (usado em POST/PUT)')
-    parser.add_argument('--payload', help='Payload JSON inline (ex: "{\\"a\\":1}")')
-    parser.add_argument('--method-name', help='Nome do método definido em methods.json ou na Postman collection')
-    default_postman = str(pathlib.Path(__file__).parent / 'BIZDOCS - API.postman_collection.json')
-    parser.add_argument('--methods-file', default=default_postman, help='Ficheiro JSON com métodos nomeados ou Postman collection')
-    parser.add_argument('--var', action='append', help='Substituições para placeholders {{name}} no URL/payload, no formato name=value. Pode repetir.')
-    parser.add_argument('--out-dir', default='reports', help='Diretoria onde os PDFs serão gerados')
-    parser.add_argument('--no-token', action='store_true', help='Não usar authorization header (útil para endpoints públicos ou testes)')
-    args = parser.parse_args()
-
-    if args.simulate:
-        simulate_responses(out_dir=args.out_dir)
-        return
-
-    url = args.url
-    method = args.method.upper() if args.method else 'GET'
-    payload = None
-
-    if args.method_name:
-        # Carregar methods.json ou Postman collection
-        try:
-            with open(args.methods_file, 'r', encoding='utf-8') as f:
-                methods_blob = json.load(f)
-        except FileNotFoundError:
-            raise SystemExit(f"Ficheiro de métodos não encontrado: {args.methods_file}")
-
-        # Detectar se é uma Postman collection (tem chave 'item')
-        if isinstance(methods_blob, dict) and 'item' in methods_blob:
-            try:
-                url, method, payload = _load_method_from_postman(args.methods_file, args.method_name)
-            except KeyError as e:
-                raise SystemExit(str(e))
-        else:
-            entry = methods_blob.get(args.method_name)
-            if not entry:
-                raise SystemExit(f"Método '{args.method_name}' não encontrado em {args.methods_file}")
-            url = entry.get('url')
-            method = entry.get('method', method).upper()
-            payload = entry.get('payload_template')
-
-    # Payload do ficheiro tem prioridade sobre template
-    if args.payload_file:
-        with open(args.payload_file, 'r', encoding='utf-8') as f:
-            payload = json.load(f)
-    elif args.payload:
-        try:
-            payload = json.loads(args.payload)
-        except Exception as e:
-            raise SystemExit(f'Payload JSON inválido: {e}')
-
-    if not url:
-        raise SystemExit('Tem de fornecer --url ou --method-name ou usar --simulate')
-
-    # Aplicar placeholders {{name}} usando vars CLI ou variáveis de ambiente
-    def apply_placeholders(s: str, vars_map: dict):
-        if not isinstance(s, str):
-            return s
-        out = s
-        import re
-        for m in re.findall(r"\{\{([^}]+)\}\}", s):
-            key = m.strip()
-            if key in vars_map:
-                out = out.replace('{{'+key+'}}', vars_map[key])
-            else:
-                env = os.environ.get(key)
-                if env is not None:
-                    out = out.replace('{{'+key+'}}', env)
-        return out
-
-    # default placeholder values: always-constant VAT id + api host inferred from auth_manager
-    default_vars = {}
-    # VAT id constant provided by user
-    default_vars['api-bzd-companyvatid'] = 'PT504419811'
-    # infer api-bzd base URL from auth_manager.TOKEN_URL if possible
     try:
-        parsed = urllib.parse.urlparse(getattr(auth_manager, 'TOKEN_URL', '') or '')
-        if parsed.scheme and parsed.netloc:
-            default_vars['api-bzd'] = f"{parsed.scheme}://{parsed.netloc}"
-    except Exception:
-        pass
+        if DEBUG:
+            print('--- InAccounting REQUEST ---')
+            print('URL:', endpoint)
+            print('Headers:', json.dumps(headers, ensure_ascii=False))
+            print('Payload:', json.dumps(payload, ensure_ascii=False, indent=2))
+        resp = requests.post(endpoint, headers=headers, json=payload, timeout=timeout)
+    except Exception as e:
+        print(f'Erro ao executar POST: {e}')
+        raise
 
-    vars_map = default_vars.copy()
-    if args.var:
-        for pair in args.var:
-            if '=' in pair:
-                k, v = pair.split('=', 1)
-                vars_map[k] = v
-
-    # apply to url and payload if needed
-    url = apply_placeholders(url, vars_map) if url else url
-    if isinstance(payload, str):
-        payload = apply_placeholders(payload, vars_map)
+    if DEBUG:
         try:
-            payload = json.loads(payload)
+            req_body = getattr(resp.request, 'body', None)
+            print('--- RESPONSE ---')
+            print('Status:', resp.status_code)
+            print('Response headers:', dict(resp.headers))
+            print('Response body:', resp.text[:4000])
+            print('Request body sent:', req_body[:4000] if isinstance(req_body, (bytes, str)) else req_body)
         except Exception:
             pass
-    elif isinstance(payload, dict):
-        # naive recursive replace in strings
-        def replace_in_obj(obj):
-            if isinstance(obj, str):
-                return apply_placeholders(obj, vars_map)
-            if isinstance(obj, dict):
-                return {k: replace_in_obj(v) for k, v in obj.items()}
-            if isinstance(obj, list):
-                return [replace_in_obj(i) for i in obj]
-            return obj
-        payload = replace_in_obj(payload)
 
-    # if url still contains placeholders, abort with helpful message
-    if url and '{{' in url and '}}' in url:
-        raise SystemExit(f'URL ainda contém placeholders não resolvidos: {url}. Use --var name=value ou defina variáveis de ambiente correspondentes.')
+    # try to extract list of items from response JSON
+    items = []
+    try:
+        data = resp.json()
+        if isinstance(data, list):
+            items = data
+        elif isinstance(data, dict):
+            # common keys that might contain items
+            for key in ('items', 'results', 'data', 'documents'):
+                if key in data and isinstance(data[key], list):
+                    items = data[key]
+                    break
+            else:
+                # fallback: find first list value in dict
+                for v in data.values():
+                    if isinstance(v, list):
+                        items = v
+                        break
+    except Exception:
+        # response not JSON or parsing failed; keep items empty
+        items = []
 
-    if args.no_token:
-        import requests as _req
-        headers = {}
-        if method == 'GET':
-            resp = _req.get(url, headers=headers)
-        else:
-            headers['Content-Type'] = 'application/json'
-            resp = _req.request(method, url, headers=headers, json=payload)
-        proc = process_response(resp)
-        metadata = {'generated_at': time.ctime(), 'api_endpoint': url, 'method': method}
-        request_info = {'headers': dict(resp.request.headers) if resp.request is not None else {}, 'body_summary': (json.dumps(payload, ensure_ascii=False, indent=2) if payload else None)}
-        response_info = {'status_code': resp.status_code, 'headers': dict(resp.headers), 'detected_type': proc.get('type'), 'summary': proc.get('summary'), 'artifact': proc.get('artifact')}
-        out_pdf = os.path.join(args.out_dir, f"report_cli_{int(time.time())}.pdf")
-        generate_api_report_pdf(out_pdf, metadata, request_info, response_info, notes=proc.get('notes'))
-        print(out_pdf)
+    # store in module-level variable for later iteration
+    global IN_ACCOUNTING_ITEMS
+    IN_ACCOUNTING_ITEMS = items
+
+    # build canonical response object with items and optional paginationKey
+    pagination_key = None
+    try:
+        if isinstance(data, dict) and 'paginationKey' in data:
+            pagination_key = data.get('paginationKey')
+    except Exception:
+        pagination_key = None
+
+    response_obj = {
+        'items': items,
+        'paginationKey': pagination_key
+    }
+
+    # store full response object in module-level variable
+    global IN_ACCOUNTING_RESPONSE
+    IN_ACCOUNTING_RESPONSE = response_obj
+
+    # persist to disk for external processes (e.g., Visual FoxPro) — safe write
+    try:
+        save_path = r'C:\temp\in_accounting.json'
+        save_dir = os.path.dirname(save_path)
+        if save_dir and not os.path.exists(save_dir):
+            os.makedirs(save_dir, exist_ok=True)
+        with open(save_path, 'w', encoding='utf-8') as fh:
+            json.dump(response_obj, fh, ensure_ascii=False, indent=2)
+    except Exception:
+        # don't fail the call if writing to disk fails; just warn when in debug
+        if DEBUG:
+            print('Warning: failed to persist InAccounting JSON to disk')
+
+    return resp
+
+
+def get_in_accounting_response():
+    """Return the last stored full InAccounting response object.
+
+    Returns a dict with keys `items` (list) and `paginationKey` (or None).
+    """
+    return IN_ACCOUNTING_RESPONSE
+
+
+def get_in_accounting_items():
+    """Return the last populated IN_ACCOUNTING_ITEMS list.
+
+    Useful for external callers (e.g., Visual FoxPro) that import this module and
+    want to iterate over the results after `call_in_accounting()` has run.
+    """
+    return IN_ACCOUNTING_ITEMS
+
+
+def print_in_accounting_summary(limit: int = None):
+    """Print a concise, human-readable summary of the items stored in
+    `IN_ACCOUNTING_ITEMS`.
+
+    Each line shows: index, documentId, documentNumber, documentName,
+    documentTotalAmount and documentStatus.
+    """
+    items = IN_ACCOUNTING_ITEMS
+    if not items:
+        print('IN_ACCOUNTING_ITEMS is empty')
+        return
+    for i, it in enumerate(items):
+        if limit is not None and i >= limit:
+            break
+        doc_id = it.get('documentId', '')
+        number = it.get('documentNumber', '')
+        name = it.get('documentName', '')
+        amount = it.get('documentTotalAmount', '')
+        status = it.get('documentStatus', '')
+        print(f"{i+1}. id={doc_id} number={number} name={name} amount={amount} status={status}")
+
+
+def export_in_accounting_csv(path: str):
+    """Export `IN_ACCOUNTING_ITEMS` to CSV at `path`.
+
+    Returns the path on success.
+    """
+    import csv
+
+    items = IN_ACCOUNTING_ITEMS
+    if not items:
+        raise ValueError('IN_ACCOUNTING_ITEMS is empty; run call_in_accounting() first')
+
+    fieldnames = [
+        'documentId', 'documentNumber', 'documentName', 'documentTotalAmount',
+        'documentStatus', 'documentDate', 'documentVendorVatId', 'documentCustomerVatId'
+    ]
+    with open(path, 'w', newline='', encoding='utf-8') as fh:
+        writer = csv.DictWriter(fh, fieldnames=fieldnames)
+        writer.writeheader()
+        for it in items:
+            row = {k: it.get(k, '') for k in fieldnames}
+            writer.writerow(row)
+    return path
+
+
+def _print_response(resp: requests.Response, machine_json: bool = False):
+    endpoint = getattr(resp.request, 'url', None) or ''
+    status = resp.status_code
+    ctype = resp.headers.get('Content-Type', '')
+    body = None
+    if 'application/json' in ctype:
+        try:
+            body = resp.json()
+        except Exception:
+            body = resp.text
     else:
-        out = call_protected_api_and_report(url, method=method, payload=payload, out_dir=args.out_dir)
-        print(out)
+        body = resp.text
+
+    if machine_json:
+        out = {'status': status, 'url': endpoint}
+        # include body as JSON if possible, else truncated text
+        if isinstance(body, (dict, list)):
+            out['body'] = body
+        else:
+            out['body'] = (body or '')[:200]
+        print(json.dumps(out, ensure_ascii=False))
+    else:
+        print('URL:', endpoint)
+        print('Status:', status)
+        if isinstance(body, (dict, list)):
+            print(json.dumps(body, ensure_ascii=False, indent=2))
+        else:
+            print(body[:400])
 
 
 if __name__ == '__main__':
-    _cli()
+    parser = argparse.ArgumentParser(description='Call ExtractedMetadata with token check and simple defaults')
+    parser.add_argument('--url', default=BASE_URL, help='Base URL or template (default from BASE_URL)')
+    parser.add_argument('--vatid', default=VATID, help='Company VAT id (default from VATID)')
+    parser.add_argument('--ids', help='Comma-separated document ids; if omitted uses DOCUMENT_IDS variable')
+    parser.add_argument('--run-inaccounting', action='store_true', help='Also run the Documents/InAccounting method and store items')
+    parser.add_argument('--debug', action='store_true', help='Enable verbose request/response logging for debugging')
+    parser.add_argument('--machine-json', action='store_true', help='Print single-line JSON summary (for VFP)')
+    args = parser.parse_args()
+
+    # If CLI provided values, write them to module globals so the function can use them
+    if args.url:
+        BASE_URL = args.url  # local override for this invocation
+    if args.vatid:
+        VATID = args.vatid
+    if args.ids:
+        DOCUMENT_IDS[:] = [i.strip() for i in args.ids.split(',') if i.strip()]
+    if args.debug:
+        DEBUG = True
+
+    # New behavior: obtain token (if needed) and run only call_in_accounting()
+    SAFETY_MARGIN = 60
+    current_token = auth_manager.TOKEN_INFO.get('access_token')
+    expiry = auth_manager.TOKEN_INFO.get('expiry_timestamp', 0)
+    if current_token and (expiry > time.time() + SAFETY_MARGIN):
+        print(f"Usando token existente que expira em: {time.ctime(expiry)}")
+    else:
+        print('Token ausente ou expirado; a obter novo token...')
+        new_token = auth_manager.get_access_token()
+        if not new_token:
+            raise SystemExit('Não foi possível obter token de acesso')
+
+    # Execute only the InAccounting call as requested by the user
+    resp = call_in_accounting(vatid=VATID)
+    # Print response (machine-json option still supported)
+    _print_response(resp, machine_json=args.machine_json)
+    
+    # Print a short summary of items (human-friendly) unless machine-json requested
+    if not args.machine_json:
+        print(f"InAccounting returned {len(IN_ACCOUNTING_ITEMS)} items")
+        print_in_accounting_summary(limit=20)
+
+    # Build canonical response object directly from resp.json()
+    try:
+        data = resp.json()
+    except Exception:
+        data = None
+
+    # locate items whether response is {'items': [...]} or list itself
+    if isinstance(data, dict):
+        items = data.get('items') or next((v for v in data.values() if isinstance(v, list)), [])
+    elif isinstance(data, list):
+        items = data
+    else:
+        items = []
+
+    canonical_items = []
+    for it in items:
+        canonical_items.append({
+            "journalGroupName": it.get("journalGroupName", ""),
+            "accountancyYear": it.get("accountancyYear", 0) or 0,
+            "accountancyMonth": it.get("accountancyMonth", 0) or 0,
+            "costCenter": it.get("costCenter", ""),
+            "documentDate": it.get("documentDate", ""),
+            "documentNumber": it.get("documentNumber", ""),
+            "documentVendorVatId": it.get("documentVendorVatId", ""),
+            "documentCustomerVatId": it.get("documentCustomerVatId", ""),
+            "documentTotalAmount": it.get("documentTotalAmount", 0) or 0,
+            "documentStatus": it.get("documentStatus", ""),
+            "updatedOn": it.get("updatedOn", ""),
+            "documentId": it.get("documentId", ""),
+            "createdOn": it.get("createdOn", ""),
+            "documentName": it.get("documentName", "")
+        })
+
+    result = {
+        "items": canonical_items,
+        "paginationKey": (data.get('paginationKey') if isinstance(data, dict) else None)
+    }
+
+    print(json.dumps(result, ensure_ascii=False, indent=2))
+# End of script
