@@ -27,6 +27,7 @@ import time
 import json
 import argparse
 import requests
+from datetime import datetime
 import auth_manager
 
 
@@ -413,4 +414,29 @@ if __name__ == '__main__':
     }
 
     print(json.dumps(result, ensure_ascii=False, indent=2))
+    
+    # Save the canonical items to JSON file in reports directory
+    try:
+        # Se está a correr como .exe, usar a pasta do exe; senão, usar a pasta do script
+        import sys
+        if getattr(sys, 'frozen', False):
+            # A correr como .exe (PyInstaller)
+            base_dir = os.path.dirname(sys.executable)
+        else:
+            # A correr como script Python
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+        
+        reports_dir = os.path.join(base_dir, 'reports')
+        if not os.path.exists(reports_dir):
+            os.makedirs(reports_dir, exist_ok=True)
+        
+        # Generate filename with date and time
+        timestamp = datetime.now().strftime('%Y-%m-%d_%H%M%S')
+        json_filename = f'in_accounting_items_{timestamp}.json'
+        json_path = os.path.join(reports_dir, json_filename)
+        with open(json_path, 'w', encoding='utf-8') as fh:
+            json.dump(result, fh, ensure_ascii=False, indent=2)
+        print(f"\nItems saved to: {json_path}")
+    except Exception as e:
+        print(f"\nWarning: failed to save items to JSON file: {e}")
 # End of script

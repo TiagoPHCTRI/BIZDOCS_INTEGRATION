@@ -1,155 +1,369 @@
-* Programa VFP para ler JSON de um ficheiro e criar uma listagem
-* Inspirado em exemplos PHC: carregar dados num cursor e exibir num grid de formulário
-* Lê o JSON gerado pelo script Python (C:\temp\in_accounting.json)
+* Função VFP para executar Python e exibir resultados em browse list
+* Se Python retornar OK, lê JSON e mostra os dados
+json_listing(fo.no)
+Function json_listing(ncont)
+	Local lcCommand, lcResult, loShell, lcJsonFile, lcJsonText, lSuccess
 
-LOCAL lcFileName, lcJsonText, lnI, loItem
+	* Usar o batch script para executar
+	lcCommand = "c:\trigenius\BizDocs_Integrator\run.bat"
+	lSuccess = .T.
 
-* Definir o nome do ficheiro JSON (gerado pelo Python)
-lcFileName = "C:\temp\in_accounting.json"
+	Try
+		loShell = Createobject("WScript.Shell")
+		* Usar Run em vez de Exec para evitar bloqueios
+		loShell.Run(lcCommand, 0, .F.)  && 0=hidden, .T.=wait until finish
 
-* Verificar se o ficheiro existe
-IF NOT FILE(lcFileName)
-    MESSAGEBOX("Ficheiro JSON não encontrado: " + lcFileName)
-    RETURN
-ENDIF
+		* Dar tempo ao .exe de criar os ficheiros JSON
+		Inkey(3)  && espera 3 segundos
 
-* Ler o conteúdo do ficheiro
-lcJsonText = FILETOSTR(lcFileName)
+		* Se chegou aqui, foi OK - obter último ficheiro JSON na pasta reports
+		lcJsonFile = GET_LATEST_JSON_FILE()
+		If Empty(lcJsonFile)
+			Messagebox("Nenhum ficheiro JSON encontrado na pasta reports (c:\Projetos\BizDocs_Integrator\reports)", 16, "Erro")
+			lSuccess = .F.
+		Endif
 
-* Criar uma tabela temporária com os campos do JSON
-CREATE CURSOR temp_json (;
-    journalGroupName C(50), ;
-    accountancyYear N(4), ;
-    accountancyMonth N(2), ;
-    costCenter C(50), ;
-    documentDate C(10), ;
-    documentNumber C(50), ;
-    documentVendorVatId C(20), ;
-    documentCustomerVatId C(20), ;
-    documentTotalAmount N(10,2), ;
-    documentStatus C(20), ;
-    updatedOn C(20), ;
-    documentId C(50), ;
-    createdOn C(20), ;
-    documentName C(100) ;
-)
+		If lSuccess
+			* Ler ficheiro
+			lcJsonText = Filetostr(lcJsonFile)
 
-* Parsing simples (remover chaves e dividir por objetos)
-lcJsonText = STRTRAN(lcJsonText, '[', '')
-lcJsonText = STRTRAN(lcJsonText, ']', '')
-lcJsonText = STRTRAN(lcJsonText, '{', '')
-lcJsonText = STRTRAN(lcJsonText, '}', '')
-lcJsonText = STRTRAN(lcJsonText, '"', '')
+			* Criar cursor e popular
+			CREATE_CURSOR(lcJsonText)
 
-* Assumir que "items:" precede a lista; remover prefixos
-lnPos = AT('items:', lcJsonText)
-IF lnPos > 0
-    lcJsonText = SUBSTR(lcJsonText, lnPos + 6)
-ENDIF
+			* Extrair dados do JSON e inserir no cursor
+			Select temp_json
+			If READ_JSON_AND_INSERT(lcJsonText,"temp_json","items")
+				* Mostrar browse list
+				SHOW_BROWSE()
+			Else
+				msg("Erro a ler json e inserir dados no cursor!")
+			Endif
+		Endif
 
-* Dividir por objetos (vírgula entre objetos)
-LOCAL laObjects
-laObjects = ALINES(laObjects, lcJsonText, .T., ',')
+	Catch To loError
+		Messagebox("Erro: " + loError.Message, 16, "Erro")
+		lSuccess = .F.
+	Endtry
 
-FOR lnI = 1 TO ALEN(laObjects)
-    loItem = laObjects[lnI]
-    * Extrair valores para cada campo
-    LOCAL lcJournalGroupName, lnAccountancyYear, lnAccountancyMonth, lcCostCenter, ;
-          lcDocumentDate, lcDocumentNumber, lcDocumentVendorVatId, lcDocumentCustomerVatId, ;
-          lnDocumentTotalAmount, lcDocumentStatus, lcUpdatedOn, lcDocumentId, lcCreatedOn, lcDocumentName
-    
-    lcJournalGroupName = STREXTRACT(loItem, 'journalGroupName:', ',', 1)
-    lnAccountancyYear = VAL(STREXTRACT(loItem, 'accountancyYear:', ',', 1))
-    lnAccountancyMonth = VAL(STREXTRACT(loItem, 'accountancyMonth:', ',', 1))
-    lcCostCenter = STREXTRACT(loItem, 'costCenter:', ',', 1)
-    lcDocumentDate = STREXTRACT(loItem, 'documentDate:', ',', 1)
-    lcDocumentNumber = STREXTRACT(loItem, 'documentNumber:', ',', 1)
-    lcDocumentVendorVatId = STREXTRACT(loItem, 'documentVendorVatId:', ',', 1)
-    lcDocumentCustomerVatId = STREXTRACT(loItem, 'documentCustomerVatId:', ',', 1)
-    lnDocumentTotalAmount = VAL(STREXTRACT(loItem, 'documentTotalAmount:', ',', 1))
-    lcDocumentStatus = STREXTRACT(loItem, 'documentStatus:', ',', 1)
-    lcUpdatedOn = STREXTRACT(loItem, 'updatedOn:', ',', 1)
-    lcDocumentId = STREXTRACT(loItem, 'documentId:', ',', 1)
-    lcCreatedOn = STREXTRACT(loItem, 'createdOn:', ',', 1)
-    lcDocumentName = STREXTRACT(loItem, 'documentName:', '', 1)
-    
-    * Inserir na tabela temporária
-    INSERT INTO temp_json VALUES (;
-        lcJournalGroupName, lnAccountancyYear, lnAccountancyMonth, lcCostCenter, ;
-        lcDocumentDate, lcDocumentNumber, lcDocumentVendorVatId, lcDocumentCustomerVatId, ;
-        lnDocumentTotalAmount, lcDocumentStatus, lcUpdatedOn, lcDocumentId, lcCreatedOn, lcDocumentName ;
-    )
-ENDFOR
+	Return lSuccess
+Endfunc
 
-* Criar um formulário simples com grid, estilo PHC
-LOCAL loForm
-loForm = CREATEOBJECT('Form')
-loForm.Caption = 'Listagem de Documentos - BizDocs'
-loForm.Width = 1200
-loForm.Height = 600
 
-* Adicionar grid ao formulário
-LOCAL loGrid
-loGrid = CREATEOBJECT('Grid')
-loGrid.Width = loForm.Width - 20
-loGrid.Height = loForm.Height - 60
-loGrid.Top = 10
-loGrid.Left = 10
-loGrid.RecordSource = 'temp_json'
-loGrid.ReadOnly = .T.
-loGrid.AllowAddNew = .F.
-loGrid.AllowRowSizing = .F.
-loGrid.AllowColumnSizing = .T.
+* Função para obter o ficheiro JSON mais recente da pasta reports
+Function GET_LATEST_JSON_FILE()
+	Local lcReportsDir, laFiles[1], nCount, nI, lcNewest
 
-* Configurar colunas do grid
-loGrid.ColumnCount = 14
-loGrid.Columns[1].Header1.Caption = 'Grupo Diário'
-loGrid.Columns[1].Width = 100
-loGrid.Columns[2].Header1.Caption = 'Ano'
-loGrid.Columns[2].Width = 50
-loGrid.Columns[3].Header1.Caption = 'Mês'
-loGrid.Columns[3].Width = 50
-loGrid.Columns[4].Header1.Caption = 'Centro Custo'
-loGrid.Columns[4].Width = 100
-loGrid.Columns[5].Header1.Caption = 'Data Doc'
-loGrid.Columns[5].Width = 80
-loGrid.Columns[6].Header1.Caption = 'Número Doc'
-loGrid.Columns[6].Width = 100
-loGrid.Columns[7].Header1.Caption = 'NIF Fornecedor'
-loGrid.Columns[7].Width = 100
-loGrid.Columns[8].Header1.Caption = 'NIF Cliente'
-loGrid.Columns[8].Width = 100
-loGrid.Columns[9].Header1.Caption = 'Total'
-loGrid.Columns[9].Width = 80
-loGrid.Columns[10].Header1.Caption = 'Estado'
-loGrid.Columns[10].Width = 80
-loGrid.Columns[11].Header1.Caption = 'Atualizado'
-loGrid.Columns[11].Width = 100
-loGrid.Columns[12].Header1.Caption = 'ID Doc'
-loGrid.Columns[12].Width = 150
-loGrid.Columns[13].Header1.Caption = 'Criado'
-loGrid.Columns[13].Width = 100
-loGrid.Columns[14].Header1.Caption = 'Nome Doc'
-loGrid.Columns[14].Width = 150
+	lcReportsDir = "c:\Trigenius\BizDocs_Integrator\reports"
+	lcNewest = ""
 
-* Adicionar botão fechar
-LOCAL loBtnClose
-loBtnClose = CREATEOBJECT('CommandButton')
-loBtnClose.Caption = 'Fechar'
-loBtnClose.Top = loForm.Height - 40
-loBtnClose.Left = loForm.Width - 100
-loBtnClose.Click = 'loForm.Release()'
+	* Procurar todos os ficheiros JSON
+	nCount = Adir(laFiles, lcReportsDir + "\in_accounting_items*.json")
 
-* Adicionar controles ao formulário
-loForm.AddObject('Grid1', 'Grid')
-loForm.Grid1 = loGrid
-loForm.AddObject('BtnClose', 'CommandButton')
-loForm.BtnClose = loBtnClose
+	If nCount > 0
+		* Último ficheiro (ordenado alfabeticamente, o maior nome é o mais recente)
+		msg(Alltrim(laFiles[nCount, 1]))
+		lcNewest = lcReportsDir + "\" + Alltrim(laFiles[nCount, 1])
+	Endif
 
-* Mostrar formulário
-loForm.Show()
+	Return lcNewest
+Endfunc
 
-* Limpar cursor após fechar
-loForm.Release()
-USE IN temp_json
-DELETE FILE "temp_json.dbf"
+
+
+* Função para criar cursor a partir do JSON
+Function CREATE_CURSOR(tcJsonText)
+	*Criar cursor
+	Create Cursor temp_json (;
+		journalGroupName C(50), ;
+		accountancyYear N(4), ;
+		accountancyMonth N(2), ;
+		costCenter C(50), ;
+		documentDate C(10), ;
+		documentNumber C(50), ;
+		documentVendorVatId C(20), ;
+		documentCustomerVatId C(20), ;
+		documentTotalAmount N(10,2), ;
+		documentStatus C(20), ;
+		updatedOn C(20), ;
+		documentId C(50), ;
+		createdOn C(20), ;
+		documentName C(100) ;
+		)
+Endfunc
+
+Function READ_JSON_AND_INSERT(tcJsonText, tcCursorName, tcArrayName)
+	************************************************************************
+	* Converte um JsonArray numa tabela/cursor, detectando propriedades
+	* mesmo quando não existem em todos os elementos.
+	************************************************************************
+
+	Lparameters ooJsonArray, cNomeCursor, itemName
+	ooJsonArray=tcJsonText
+	cNomeCursor=tcCursorName
+	itemName=tcArrayName
+	Local loJson, oJsonArray, F, z, g
+	Local a_AllFields[1], nFields, aTmp[1], nTmp
+	Local cFieldName, cCampoEval, oVal, cType, nLen
+	Local cCreateCommand, cCreateCampo
+
+	* Decodificar apenas uma vez
+	loJson = JSONDECODE(ooJsonArray)
+
+	* Fechar cursor se existir
+	If Used(cNomeCursor)
+		fecha(cNomeCursor)
+	Endif
+
+	* Extrair elemento interno ou usar raiz
+	If Vartype(itemName) = "C" And !Empty(itemName)
+		oJsonArray = loJson.&itemName.
+	Else
+		oJsonArray = loJson
+	Endif
+
+	* Validar se é JsonArray
+	If Vartype(oJsonArray) = "O" And Lower(oJsonArray.Class) = "jsonarray"
+
+		If oJsonArray.Count = 0
+			Return .F.
+		Endif
+
+		********************************************************************
+		* 1) RECOLHER TODAS AS PROPRIEDADES DE TODOS OS ELEMENTOS DO ARRAY
+		********************************************************************
+
+		nFields = 0
+		Dimension a_AllFields[1]
+
+		For z = 1 To oJsonArray.Count
+			nTmp = Amembers(aTmp, oJsonArray.Item(z))
+			For F = 1 To nTmp
+				If Ascan(a_AllFields, aTmp[F]) = 0
+					nFields = nFields + 1
+					Dimension a_AllFields[nFields]
+					a_AllFields[nFields] = aTmp[F]
+				Endif
+			Next
+		Next
+
+		* Agora temos TODOS os campos possíveis no array
+		Dimension a_JsonEstrutura[nFields]
+		Acopy(a_AllFields, a_JsonEstrutura)
+		nCols = nFields
+
+		********************************************************************
+		* 2) CRIAR COMANDO CREATE CURSOR DINÂMICO
+		********************************************************************
+
+		cCreateCommand = ""
+
+		For F = 1 To nCols
+
+			cFieldName = a_JsonEstrutura[F]
+			If Len(cFieldName) > 15
+				cFieldNameCursor = "coluna"+astr(F)
+			Else
+				cFieldNameCursor = cFieldName
+			Endif
+
+
+			**if Type(oJsonArray.Item(1).&cFieldName) <> "U"
+			**cCampoEval = "oJsonArray.Item(1)." + cFieldName
+			**else
+			**
+			**endif
+
+			**cType = Type(cCampoEval)
+			**oVal  = Evaluate(cCampoEval)
+
+			cCampoEval = ""  && inicializar
+
+			For z = 1 To oJsonArray.Count
+				If Pemstatus(oJsonArray.Item(z), cFieldName, 5)  && verifica se o campo existe
+					cCampoEval = "oJsonArray.Item("+Transform(z)+")." + cFieldName
+					Exit  && sai do loop, encontramos um elemento com o campo
+				Endif
+			Next
+
+			If Empty(cCampoEval)
+				* Nenhum elemento tem este campo
+				cType = "C"  && ou outro tipo default
+				oVal  = ""
+			Else
+				cType = Type(cCampoEval)
+				oVal  = Evaluate(cCampoEval)
+			Endif
+
+			* Detectar datetime ISO
+			If cType = "C"
+				Local xTry
+				xTry = Ctot(Transform(oVal, "@R^9999-99-99T99:99:99"))
+				If !Empty(xTry)
+					cType = "T"
+				Endif
+			Endif
+
+			Do Case
+
+				Case cType = "C"
+					* Encontrar maior tamanho em todos os elementos
+					nLen = 1
+					For z = 1 To oJsonArray.Count
+						If Pemstatus(oJsonArray.Item(z), cFieldName, 5)  && verifica se o campo existe
+							cCampoEval = "oJsonArray.Item(z)." + cFieldName
+							nLen = Max(nLen, Len(Nvl(Evaluate(cCampoEval), "")))
+						Endif
+					Next
+					cCreateCampo = cFieldNameCursor + " C(" + Transform(nLen) + ")"
+
+				Case cType = "D" Or cType = "T"
+					cCreateCampo = cFieldNameCursor + " D"
+
+				Case cType = "L"
+					cCreateCampo = cFieldNameCursor + " L"
+
+				Case cType = "N"
+					cCreateCampo = cFieldNameCursor + " N(15,5)"
+
+				Otherwise
+					* Não suportado
+					cCreateCampo = ""
+			Endcase
+
+			If !Empty(cCreateCampo)
+				If Empty(cCreateCommand)
+					cCreateCommand = "CREATE CURSOR "+cNomeCursor+" ("
+				Else
+					cCreateCommand = cCreateCommand + ", "
+				Endif
+				cCreateCommand = cCreateCommand + cCreateCampo
+			Endif
+
+		Next
+
+		cCreateCommand = cCreateCommand + ")"
+
+		********************************************************************
+		* 3) CRIAR O CURSOR
+		********************************************************************
+
+		&cCreateCommand.
+
+
+		********************************************************************
+		* 4) PREENCHER O CURSOR COM OS DADOS DO JSON
+		********************************************************************
+
+		For g = 1 To oJsonArray.Count
+
+			Select (cNomeCursor)
+			Append Blank
+
+			For F = 1 To nCols
+
+				cFieldName = a_JsonEstrutura[F]
+				If Len(cFieldName) > 15
+					cFieldNameCursor = "coluna"+astr(F)
+				Else
+					cFieldNameCursor = cFieldName
+				Endif
+
+				* Existem campos que podem não existir neste elemento
+				If Type(cNomeCursor+"."+cFieldNameCursor) <> "U"
+					If Pemstatus(oJsonArray.Item(g), cFieldName, 5)  && verifica se o campo existe
+						cCampoEval = "oJsonArray.Item(g)." + cFieldName
+						oVal = Evaluate(cCampoEval)
+						If !Isnull(oVal)
+							* Converter datetime ISO ? DATE
+							If Type(cNomeCursor+"."+cFieldNameCursor) = "D"
+								oVal = Ttod(Ctot(oVal))
+							Endif
+							* Preencher se não for objeto
+							If Type(cNomeCursor+"."+cFieldNameCursor) <> "O"
+								Replace (cFieldNameCursor) With oVal In (cNomeCursor)
+							Endif
+						Endif
+					Endif
+				Endif
+
+			Next
+
+		Next
+
+		Return .T.
+
+	Endif
+
+	Return .F.
+
+Endfunc
+
+
+* Função para mostrar browse list
+Function SHOW_BROWSE()
+	Local m.ntotcampos, m.ncampo
+	Local list_tit, list_cam, list_tam, list_pic, list_ronly
+
+	= CursorSetProp('Buffering', 5, 'temp_json')
+
+	m.ntotcampos = 7
+	m.ncampo = 1
+	Declare list_tit(m.ntotcampos), list_cam(m.ntotcampos), list_tam(m.ntotcampos), ;
+		list_pic(m.ntotcampos), list_ronly(m.ntotcampos)
+
+	list_tit(m.ncampo) = "Documento"
+	list_cam(m.ncampo) = "temp_json.documentNumber"
+	list_ronly(m.ncampo) = .T.
+	list_pic(m.ncampo) = ""
+	list_tam(m.ncampo) = 8*40
+	m.ncampo = m.ncampo + 1
+
+	list_tit(m.ncampo) = "Nome"
+	list_cam(m.ncampo) = "temp_json.documentName"
+	list_ronly(m.ncampo) = .T.
+	list_pic(m.ncampo) = ""
+	list_tam(m.ncampo) = 8*60
+	m.ncampo = m.ncampo + 1
+
+	list_tit(m.ncampo) = "Data"
+	list_cam(m.ncampo) = "temp_json.documentDate"
+	list_ronly(m.ncampo) = .T.
+	list_pic(m.ncampo) = ""
+	list_tam(m.ncampo) = 8*40
+	m.ncampo = m.ncampo + 1
+
+	list_tit(m.ncampo) = "Valor"
+	list_cam(m.ncampo) = "temp_json.documentTotalAmount"
+	list_ronly(m.ncampo) = .T.
+	list_pic(m.ncampo) = "9999999.99"
+	list_tam(m.ncampo) = 8*40
+	m.ncampo = m.ncampo + 1
+
+	list_tit(m.ncampo) = "Estado"
+	list_cam(m.ncampo) = "temp_json.documentStatus"
+	list_ronly(m.ncampo) = .T.
+	list_pic(m.ncampo) = ""
+	list_tam(m.ncampo) = 8*40
+	m.ncampo = m.ncampo + 1
+
+	list_tit(m.ncampo) = "NIF Fornecedor"
+	list_cam(m.ncampo) = "temp_json.documentVendorVatId"
+	list_ronly(m.ncampo) = .T.
+	list_pic(m.ncampo) = ""
+	list_tam(m.ncampo) = 8*40
+	m.ncampo = m.ncampo + 1
+
+	list_tit(m.ncampo) = "ID"
+	list_cam(m.ncampo) = "temp_json.documentId"
+	list_ronly(m.ncampo) = .T.
+	list_pic(m.ncampo) = ""
+	list_tam(m.ncampo) = 8*50
+
+	m.Escolheu = .F.
+
+	browlist('Documentos BizDocs', 'temp_json', 'temp_json', .T., .F., .F., .T., .F., '', .T.)
+
+	If m.Escolheu = .F.
+		Return
+	Endif
+Endfunc
